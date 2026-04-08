@@ -5,86 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iklan Kilat - Beli 10 Gratis 1</title>
     <style>
+        /* Mengatur GIF sebagai background utama seluruh halaman */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial Black', sans-serif; /* Font lebih tebal untuk kesan iklan */
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            /* LINK GIF ANDA SEBAGAI BACKGROUND */
+            background-image: url('https://i.postimg.cc/x1yD1PBH/e5f0873b-c76b-4312-88bc-3bd67981a550.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden; /* Mencegah scrollbar */
         }
 
-        #ad-container {
-            width: 300px;
-            height: 250px;
-            background-color: white;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        #logo {
-            width: 50px;
-            height: 50px;
+        /* Overlay gelap agar teks lebih mudah dibaca di atas GIF */
+        body::before {
+            content: '';
             position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Hitam transparan 50% */
+            z-index: 1;
+        }
+
+        /* Kontainer Iklan di Tengah */
+        #ad-box {
+            position: relative;
+            z-index: 2; /* Di atas overlay */
+            width: 320px;
+            background-color: rgba(255, 255, 255, 0.95); /* Putih sedikit transparan */
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 4px solid #ffc107; /* Border kuning emas */
+        }
+
+        /* Teks Promo Utama */
+        #promo-header {
+            background-color: #ffc107;
+            color: #000;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        /* Area Foto Produk */
+        #product-display {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            background-color: #fff;
         }
 
         #product-image {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
-            transition: opacity 1s ease-in-out;
+            height: 100%;
+            object-fit: contain; /* Menjaga proporsi gambar produk */
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 1s ease-in-out; /* Efek Fade */
+            opacity: 0; /* Mulai tersembunyi */
         }
 
+        #product-image.active {
+            opacity: 1; /* Tampilkan produk aktif */
+        }
+
+        /* Informasi Produk */
         #product-info {
-            padding: 10px;
+            padding: 15px;
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         #product-name {
-            font-weight: bold;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            color: #333;
             margin-bottom: 5px;
+            height: 1.4em; /* Menjaga tinggi tetap */
+            overflow: hidden;
         }
 
         #product-price {
-            color: #e44d26;
+            font-size: 2em;
+            color: #e44d26; /* Warna merah oranye */
             font-weight: bold;
-            font-size: 1.1em;
+            margin: 5px 0;
         }
 
-        #promo-text {
-            background-color: #ffc107;
-            color: black;
-            font-weight: bold;
-            padding: 5px;
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        /* Logo Utama di BAWAH Foto (di bawah info produk) */
+        #logo-container {
+            padding: 10px;
             width: 100%;
-            text-align: center;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #eee;
         }
 
-        .fade-out {
-            opacity: 0;
+        #main-logo {
+            max-width: 80px;
+            height: auto;
         }
+
     </style>
 </head>
 <body>
-    <div id="ad-container">
-        <img id="logo" src="https://i.postimg.cc/hGYqktH0/download.png" alt="Logo">
-        <img id="product-image" src="" alt="Produk">
+
+    <div id="ad-box">
+        <h1 id="promo-header">Beli 10 GRATIS 1</h1>
+        
+        <div id="product-display">
+            <img id="product-image" src="" alt="Produk">
+        </div>
+
         <div id="product-info">
-            <div id="product-name"></div>
+            <div id="product-name">Memuat...</div>
             <div id="product-price">3$</div>
         </div>
-        <div id="promo-text">Beli 10 GRATIS 1</div>
+
+        <div id="logo-container">
+            <img id="main-logo" src="https://i.postimg.cc/hGYqktH0/download.png" alt="Logo Utama">
+        </div>
     </div>
 
     <script>
@@ -104,29 +162,36 @@
         const productImage = document.getElementById('product-image');
         const productName = document.getElementById('product-name');
 
-        function showNextProduct() {
-            // Fade out
-            productImage.classList.add('fade-out');
+        function updateProduct() {
+            const product = products[currentProductIndex];
 
+            // 1. Mulai Fade Out gambar lama
+            productImage.classList.remove('active');
+
+            // 2. Tunggu 1 detik (durasi transisi CSS), lalu ganti sumber dan Fade In
             setTimeout(() => {
-                // Ganti produk setelah fade out selesai
-                const currentProduct = products[currentProductIndex];
-                productImage.src = currentProduct.img;
-                productName.textContent = currentProduct.name;
+                productImage.src = product.img;
+                productName.textContent = product.name;
+                
+                // Mulai Fade In gambar baru
+                productImage.classList.add('active');
 
-                // Fade in
-                productImage.classList.remove('fade-out');
-
-                // Lanjut ke produk berikutnya
+                // Siapkan indeks untuk produk berikutnya
                 currentProductIndex = (currentProductIndex + 1) % products.length;
-            }, 1000); // Waktu fade out (sama dengan transition di CSS)
+            }, 1000); 
         }
 
-        // Tampilkan produk pertama saat halaman dimuat
-        showNextProduct();
+        // Tampilkan produk pertama segera
+        // (Sedikit trik agar tidak ada delay kosong di awal)
+        const firstProduct = products[0];
+        productImage.src = firstProduct.img;
+        productName.textContent = firstProduct.name;
+        productImage.classList.add('active');
+        currentProductIndex = 1;
 
-        // Ganti produk setiap 4 detik (termasuk waktu fade)
-        setInterval(showNextProduct, 4000); 
+        // Jalankan pergantian setiap 4 detik
+        setInterval(updateProduct, 4000); 
+
     </script>
 </body>
 </html>
