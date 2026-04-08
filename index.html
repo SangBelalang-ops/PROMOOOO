@@ -3,57 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iklan Kilat Produk</title>
+    <title>Iklan Kilat Compact</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Arial Black', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #222; /* Background gelap biar iklan kelihatan nyala */
+            background-color: #1a1a1a; /* Background dasar gelap */
         }
 
-        /* Container Utama Iklan */
+        /* Container Utama - Dibuat Transparan */
         .ad-container {
-            width: 300px;
+            width: 220px; /* Ukuran kotak lebih kecil */
             position: relative;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: transparent; /* Hilangkan kotak putih */
             text-align: center;
         }
 
         /* LOGO DI ATAS FOTO GIF */
         .logo-top {
-            width: 80px;
-            margin-bottom: 10px;
+            width: 100px; /* Logo diperjelas */
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); /* Biar logo "pop" di bg gelap */
         }
 
-        /* Area Foto GIF */
+        /* Area Foto GIF - Ukuran dipangkas jadi lebih kecil */
         .image-wrapper {
             position: relative;
-            width: 100%;
-            height: 300px; /* Sesuaikan tinggi gif lo */
+            width: 180px; /* Lebar foto dipangkas */
+            height: 180px; /* Tinggi foto dipangkas (persegi) */
+            margin: 0 auto;
             overflow: hidden;
-            border-radius: 4px;
+            border-radius: 12px;
+            border: 3px solid #ffc107;
             background-image: url('https://i.postimg.cc/x1yD1PBH/e5f0873b-c76b-4312-88bc-3bd67981a550.gif');
             background-size: cover;
             background-position: center;
         }
 
-        /* Produk yang Fade In/Out di dalam GIF */
+        /* Produk yang Fade In/Out di atas GIF */
         .product-overlay {
-            width: 100%;
-            height: 100%;
+            width: 80%; /* Foto produk di dalam gif diperkecil dikit biar rapi */
+            height: 80%;
             object-fit: contain;
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 10%;
+            left: 10%;
             opacity: 0;
-            transition: opacity 0.8s ease-in-out;
+            transition: opacity 0.6s ease-in-out;
         }
 
         .product-overlay.active {
@@ -66,36 +67,38 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 0, 0, 0.85); /* Warna merah transparan */
-            color: yellow;
+            background: rgba(255, 0, 0, 0.9);
+            color: #fff;
             font-weight: bold;
-            padding: 8px;
-            font-size: 1.1em;
+            padding: 5px;
+            font-size: 0.85em;
             text-transform: uppercase;
-            animation: blink 1s infinite; /* Efek kedip biar kilat */
+            animation: blink 0.8s infinite;
         }
 
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            0% { background: #ff0000; }
+            50% { background: #ffc107; color: #000; }
+            100% { background: #ff0000; }
         }
 
-        /* Info Harga & Nama di Bawah */
+        /* Info Harga & Nama */
         .info {
             padding: 10px 0;
+            color: white; /* Teks jadi putih karena kotak transparan */
         }
 
         .price {
-            font-size: 24px;
-            color: #e44d26;
-            font-weight: bold;
-            margin: 5px 0;
+            font-size: 22px;
+            color: #00ff00; /* Hijau neon biar kontras */
+            margin: 0;
         }
 
         .product-name {
-            font-weight: bold;
-            color: #333;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            text-shadow: 1px 1px 2px #000;
         }
     </style>
 </head>
@@ -106,13 +109,12 @@
 
         <div class="image-wrapper">
             <img id="product-img" class="product-overlay" src="" alt="Product">
-            
             <div class="promo-tag">Beli 10 GRATIS 1</div>
         </div>
 
         <div class="info">
-            <div id="p-name" class="product-name">KACANG TOJIN</div>
             <div class="price">3$</div>
+            <div id="p-name" class="product-name">LOADING...</div>
         </div>
     </div>
 
@@ -134,18 +136,18 @@
         const nameEl = document.getElementById('p-name');
 
         function slide() {
-            imgEl.classList.remove('active'); // Fade out
+            imgEl.classList.remove('active');
             
             setTimeout(() => {
                 imgEl.src = products[index].img;
                 nameEl.textContent = products[index].name;
-                imgEl.classList.add('active'); // Fade in
+                imgEl.classList.add('active');
                 index = (index + 1) % products.length;
-            }, 800);
+            }, 600);
         }
 
-        setInterval(slide, 3000); // Ganti tiap 3 detik
-        slide(); // Jalankan pertama kali
+        setInterval(slide, 3000);
+        slide();
     </script>
 </body>
 </html>
