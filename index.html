@@ -3,614 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQUAD SHOWDOWN V24 - ANIMATION OVERDRIVE</title>
-
+    <title>Iklan Kilat - Beli 10 Gratis 1</title>
     <style>
-        /* V24 DESIGN SYSTEM: NEON OVERLOAD 
-           Warna dibuat lebih kontras agar efek pendar (glow) maksimal.
-        */
-        :root {
-            --p-neon: #00f2ff;
-            --e-neon: #ff0055;
-            --bg-deep: #050508;
-            --panel-glass: rgba(15, 15, 25, 0.95);
-            --accent: #ffcc00;
-        }
-
         body {
+            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: var(--bg-deep);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        #game-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        canvas {
-            display: block;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-        }
-
-        /* --- ADVANCED HUD --- */
-        .hud-layer {
-            position: absolute;
-            top: 30px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 60px;
-            box-sizing: border-box;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .stat-container {
-            width: 420px;
-            background: var(--panel-glass);
-            padding: 15px;
-            border-bottom: 3px solid #333;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-        }
-
-        .p1-side { border-left: 8px solid var(--p-neon); border-radius: 0 15px 15px 0; }
-        .p2-side { border-right: 8px solid var(--e-neon); text-align: right; border-radius: 15px 0 0 15px; }
-
-        .name-tag {
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 8px;
-        }
-
-        .hp-outer {
-            width: 100%;
-            height: 28px;
-            background: #111;
-            border: 1px solid #444;
+        #ad-container {
+            width: 300px;
+            height: 250px;
+            background-color: white;
+            border: 2px solid #ccc;
+            border-radius: 10px;
             overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        .hp-fill {
-            height: 100%;
+        #logo {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        #product-image {
             width: 100%;
-            transition: width 0.2s ease-out;
+            height: 150px;
+            object-fit: cover;
+            transition: opacity 1s ease-in-out;
         }
 
-        #hp-p1 { background: linear-gradient(90deg, #004455, var(--p-neon)); box-shadow: 0 0 15px var(--p-neon); }
-        #hp-p2 { background: linear-gradient(90deg, var(--e-neon), #550022); box-shadow: 0 0 15px var(--e-neon); float: right; }
-
-        .energy-bar {
-            width: 75%;
-            height: 6px;
-            background: #000;
-            margin-top: 10px;
+        #product-info {
+            padding: 10px;
+            text-align: center;
         }
 
-        .energy-fill { height: 100%; width: 0%; background: var(--accent); transition: 0.1s; }
-
-        /* --- SCREEN OVERLAYS --- */
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .btn-play {
-            padding: 20px 60px;
-            background: transparent;
-            color: var(--p-neon);
-            border: 3px solid var(--p-neon);
-            font-size: 28px;
+        #product-name {
             font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 30px;
-            transition: 0.3s;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            font-size: 1.2em;
+            margin-bottom: 5px;
         }
 
-        .btn-play:hover {
-            background: var(--p-neon);
-            color: #000;
-            box-shadow: 0 0 50px var(--p-neon);
+        #product-price {
+            color: #e44d26;
+            font-weight: bold;
+            font-size: 1.1em;
         }
 
-        #combo-display {
+        #promo-text {
+            background-color: #ffc107;
+            color: black;
+            font-weight: bold;
+            padding: 5px;
             position: absolute;
-            top: 220px;
-            left: 60px;
-            opacity: 0;
-            transition: 0.1s;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
         }
 
-        .combo-text {
-            font-size: 100px;
-            font-weight: 950;
-            font-style: italic;
-            color: #fff;
-            line-height: 0.8;
-            text-shadow: 0 0 20px var(--p-neon);
+        .fade-out {
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-
-<div id="game-wrapper">
-    <div class="hud-layer">
-        <div class="stat-container p1-side">
-            <div class="name-tag" style="color: var(--p-neon);">FLAUST (P1)</div>
-            <div class="hp-outer"><div id="hp-p1" class="hp-fill"></div></div>
-            <div class="energy-bar"><div id="energy-p1" class="energy-fill"></div></div>
+    <div id="ad-container">
+        <img id="logo" src="https://i.postimg.cc/hGYqktH0/download.png" alt="Logo">
+        <img id="product-image" src="" alt="Produk">
+        <div id="product-info">
+            <div id="product-name"></div>
+            <div id="product-price">3$</div>
         </div>
-
-        <div class="stat-container p2-side">
-            <div class="name-tag" style="color: var(--e-neon);">BOSS SQUAD (V24)</div>
-            <div class="hp-outer"><div id="hp-p2" class="hp-fill"></div></div>
-            <div class="energy-bar" style="margin-left: 25%;"><div id="energy-p2" class="energy-fill" style="float:right;"></div></div>
-        </div>
+        <div id="promo-text">Beli 10 GRATIS 1</div>
     </div>
 
-    <div id="combo-display">
-        <div class="combo-text" id="combo-val">0</div>
-        <div style="font-weight: bold; color: var(--accent); letter-spacing: 5px;">HITS CONNECTED</div>
-    </div>
+    <script>
+        const products = [
+            { id: 0, name: "KACANG TOJIN", stock: 0, img: "https://i.postimg.cc/MZbTnf6L/184f7bee-21ba-4477-81c6-c9f7acfb487a.jpg" },
+            { id: 1, name: "KETAWA", stock: 0, img: "https://i.postimg.cc/ncFLBVMD/b95988fe-979d-48c6-891c-900e8f3e42f1.jpg" },
+            { id: 2, name: "KACANG TING TING", stock: 0, img: "https://i.postimg.cc/hP2trF7k/ab4902a9-b072-4159-8ebb-3fbf45c8fc0b.jpg" },
+            { id: 3, name: "MIE LIDI", stock: 0, img: "https://i.postimg.cc/K84vp9Pc/5bb5bc5e-cf70-47c1-86c5-dbd05e0cc616.jpg" },
+            { id: 4, name: "MAKARONI", stock: 0, img: "https://i.postimg.cc/9f7XCrgJ/9c04e078-ee93-4550-8310-851e9a34d691.jpg" },
+            { id: 5, name: "BASRENG", stock: 0, img: "https://i.postimg.cc/gjYGV4z5/601de701-a9b5-4bbf-8aa6-87b171349a64.jpg" },
+            { id: 6, name: "LUMPIA", stock: 0, img: "https://i.postimg.cc/ZYcbbkj9/38611567-5f9f-4899-9d33-cffa77b5e469.jpg" },
+            { id: 7, name: "KACANG ARAB", stock: 0, img: "https://i.postimg.cc/sDgV1n09/16ad7cba-62a3-48d4-a52c-25fe2f379b5e.jpg" },
+            { id: 8, name: "KACANG MADU", stock: 0, img: "https://i.postimg.cc/sDH3Wpk1/129f1f36-b98b-4f99-bdde-93c543eb32e8.jpg" }
+        ];
 
-    <div id="start-screen" class="overlay">
-        <h1 style="font-size: 70px; margin: 0; letter-spacing: -2px;">SQUAD SHOWDOWN <span style="color: var(--p-neon);">V24</span></h1>
-        <p style="color: #666; margin-top: 10px;">ANIMATION OVERDRIVE ENGINE</p>
-        <button class="btn-play" onclick="Game.init()">BOOT SYSTEM</button>
-    </div>
+        let currentProductIndex = 0;
+        const productImage = document.getElementById('product-image');
+        const productName = document.getElementById('product-name');
 
-    <div id="death-screen" class="overlay" style="display: none;">
-        <h1 id="win-text" style="font-size: 80px;">TERMINATED</h1>
-        <button class="btn-play" onclick="location.reload()">RE-BOOT (PRESS R)</button>
-    </div>
+        function showNextProduct() {
+            // Fade out
+            productImage.classList.add('fade-out');
 
-    <canvas id="stage"></canvas>
-</div>
+            setTimeout(() => {
+                // Ganti produk setelah fade out selesai
+                const currentProduct = products[currentProductIndex];
+                productImage.src = currentProduct.img;
+                productName.textContent = currentProduct.name;
 
-<script>
-/**
- * ============================================================================
- * SQUAD SHOWDOWN V24 - CORE ENGINE
- * ============================================================================
- * FEATURE: Advanced Frame-Specific Hitbox & Animation Logic
- * OPTIMIZED FOR: MSI i7 12th Gen+ 
- * ============================================================================
- */
+                // Fade in
+                productImage.classList.remove('fade-out');
 
-"use strict";
-
-const SETTINGS = {
-    GRAVITY: 1.4,
-    FRICTION: 0.88,
-    GROUND_Y: 0.85,
-    DASH_POWER: 30,
-    JUMP_POWER: -34,
-    MOVE_SPEED: 12,
-    HIT_STOP_DURATION: 4 // frames
-};
-
-/**
- * --- INPUT HANDLER ---
- */
-const Input = {
-    keys: {},
-    listen: function() {
-        window.onkeydown = e => this.keys[e.code] = true;
-        window.onkeyup = e => this.keys[e.code] = false;
-    }
-};
-
-/**
- * --- PARTICLE FX ---
- */
-class Particle {
-    constructor() { this.active = false; }
-    spawn(x, y, color) {
-        this.x = x; this.y = y;
-        this.vx = (Math.random() - 0.5) * 25;
-        this.vy = (Math.random() - 0.5) * 25;
-        this.life = 1.0; this.color = color;
-        this.size = Math.random() * 8 + 2;
-        this.active = true;
-    }
-    update() {
-        this.x += this.vx; this.y += this.vy;
-        this.vy += 0.8; this.life -= 0.04;
-        if (this.life <= 0) this.active = false;
-    }
-    draw(ctx) {
-        ctx.globalAlpha = this.life;
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 10; ctx.shadowColor = this.color;
-        ctx.fillRect(this.x, this.y, this.size, this.size);
-        ctx.globalAlpha = 1;
-    }
-}
-
-const ParticleSystem = {
-    pool: [],
-    init: function() {
-        for(let i=0; i<300; i++) this.pool.push(new Particle());
-    },
-    burst: function(x, y, color) {
-        let spawned = 0;
-        for(let p of this.pool) {
-            if(!p.active) { p.spawn(x, y, color); spawned++; }
-            if(spawned > 15) break;
-        }
-    }
-};
-
-/**
- * --- FIGHTER CLASS ---
- */
-class Fighter {
-    constructor(cfg) {
-        this.name = cfg.name;
-        this.color = cfg.color;
-        this.isPlayer = cfg.isPlayer;
-        
-        this.pos = { x: cfg.x, y: 0 };
-        this.vel = { x: 0, y: 0 };
-        this.w = 70; this.h = 160;
-        
-        this.hp = 100;
-        this.energy = 0;
-        this.dir = this.isPlayer ? 1 : -1;
-        this.isGrounded = false;
-        
-        // ANIMATION STATES
-        this.state = 'IDLE'; // IDLE, MOVE, PUNCH, KICK, DASH, HIT
-        this.animFrame = 0;
-        this.cooldown = 0;
-        this.hasHitTarget = false;
-    }
-
-    update() {
-        if (this.hp <= 0) return;
-
-        // Physics Logic
-        this.vel.y += SETTINGS.GRAVITY;
-        this.pos.x += this.vel.x;
-        this.pos.y += this.vel.y;
-        this.vel.x *= (this.isGrounded ? SETTINGS.FRICTION : 0.99);
-
-        // Ground Check
-        const ground = Game.canvas.height * SETTINGS.GROUND_Y - this.h;
-        if (this.pos.y >= ground) {
-            this.pos.y = ground;
-            this.vel.y = 0;
-            this.isGrounded = true;
-        } else {
-            this.isGrounded = false;
+                // Lanjut ke produk berikutnya
+                currentProductIndex = (currentProductIndex + 1) % products.length;
+            }, 1000); // Waktu fade out (sama dengan transition di CSS)
         }
 
-        // Screen Boundaries
-        if (this.pos.x < 0) this.pos.x = 0;
-        if (this.pos.x > Game.canvas.width - this.w) this.pos.x = Game.canvas.width - this.w;
+        // Tampilkan produk pertama saat halaman dimuat
+        showNextProduct();
 
-        // Controller / AI
-        if (this.isPlayer) this.handlePlayer();
-        else this.handleAI();
-
-        // Recovery
-        if (this.cooldown > 0) this.cooldown--;
-        else if (this.state !== 'HIT') this.state = (Math.abs(this.vel.x) > 1) ? 'MOVE' : 'IDLE';
-        
-        this.energy = Math.min(100, this.energy + 0.3);
-        this.animFrame += 0.2;
-    }
-
-    handlePlayer() {
-        if (this.state === 'HIT') return;
-
-        // Movement
-        if (Input.keys['ArrowLeft']) {
-            this.vel.x = -SETTINGS.MOVE_SPEED;
-            this.dir = -1;
-        } else if (Input.keys['ArrowRight']) {
-            this.vel.x = SETTINGS.MOVE_SPEED;
-            this.dir = 1;
-        }
-
-        if (Input.keys['ArrowUp'] && this.isGrounded) {
-            this.vel.y = SETTINGS.JUMP_POWER;
-            this.isGrounded = false;
-        }
-
-        // Combat - DIFFERENT ANIMATIONS
-        if (Input.keys['KeyZ'] && this.cooldown === 0) this.performAction('PUNCH');
-        if (Input.keys['KeyX'] && this.cooldown === 0) this.performAction('KICK');
-        if (Input.keys['ShiftLeft'] && this.cooldown === 0) this.performAction('DASH');
-    }
-
-    handleAI() {
-        const target = Game.player;
-        const dist = target.pos.x - this.pos.x;
-        this.dir = dist > 0 ? 1 : -1;
-
-        if (Math.abs(dist) > 180) {
-            this.vel.x = this.dir * (SETTINGS.MOVE_SPEED - 4);
-        } else {
-            if (Math.random() > 0.97 && this.cooldown === 0) this.performAction('PUNCH');
-        }
-    }
-
-    performAction(type) {
-        this.state = type;
-        this.hasHitTarget = false;
-        this.animFrame = 0;
-
-        if (type === 'PUNCH') {
-            this.cooldown = 20;
-            this.attackDmg = 6;
-        } else if (type === 'KICK') {
-            this.cooldown = 40;
-            this.attackDmg = 15;
-            this.vel.x += this.dir * 5; // Step forward
-        } else if (type === 'DASH') {
-            if (this.energy < 30) return;
-            this.vel.x = this.dir * SETTINGS.DASH_POWER;
-            this.energy -= 30;
-            this.cooldown = 25;
-            ParticleSystem.burst(this.pos.x + 35, this.pos.y + 80, '#fff');
-        }
-    }
-
-    takeHit(dmg, attackerDir) {
-        this.hp -= dmg;
-        this.state = 'HIT';
-        this.vel.x = attackerDir * 20;
-        this.vel.y = -8;
-        Game.shake = 15;
-        ParticleSystem.burst(this.pos.x + 35, this.pos.y + 60, this.color);
-        
-        setTimeout(() => { if(this.hp > 0) this.state = 'IDLE'; }, 300);
-    }
-
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.pos.x + this.w/2, this.pos.y + this.h/2);
-        ctx.scale(this.dir, 1);
-        
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 10;
-        ctx.lineCap = 'round';
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = this.color;
-
-        const t = this.animFrame;
-        const bob = Math.sin(t) * 5;
-
-        // DRAW BODY BASED ON STATE
-        if (this.state === 'PUNCH') {
-            this.drawPunch(ctx, t);
-        } else if (this.state === 'KICK') {
-            this.drawKick(ctx, t);
-        } else if (this.state === 'HIT') {
-            this.drawHit(ctx);
-        } else {
-            this.drawIdle(ctx, bob, t);
-        }
-
-        ctx.restore();
-    }
-
-    drawIdle(ctx, bob, t) {
-        // Head
-        ctx.beginPath(); ctx.arc(0, -75 + bob, 25, 0, Math.PI*2); ctx.stroke();
-        // Body
-        ctx.beginPath(); ctx.moveTo(0, -50 + bob); ctx.lineTo(0, 30); ctx.stroke();
-        // Arms
-        const armWave = Math.sin(t * 0.5) * 10;
-        ctx.beginPath(); ctx.moveTo(0, -40 + bob); ctx.lineTo(-30, 10 + armWave); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, -40 + bob); ctx.lineTo(30, 10 - armWave); ctx.stroke();
-        // Legs
-        const legSpread = (this.state === 'MOVE') ? Math.sin(t) * 40 : 15;
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(-legSpread, 80); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(legSpread, 80); ctx.stroke();
-    }
-
-    drawPunch(ctx, t) {
-        const ext = Math.min(t * 25, 90); // Extension speed
-        ctx.beginPath(); ctx.arc(-10, -70, 25, 0, Math.PI*2); ctx.stroke(); // Leaning head
-        ctx.beginPath(); ctx.moveTo(-10, -45); ctx.lineTo(0, 30); ctx.stroke();
-        // Punching Arm
-        ctx.strokeStyle = '#fff'; // White glow for the hit
-        ctx.beginPath(); ctx.moveTo(0, -35); ctx.lineTo(ext, -30); ctx.stroke();
-        // Back Arm
-        ctx.strokeStyle = this.color;
-        ctx.beginPath(); ctx.moveTo(0, -35); ctx.lineTo(-20, 10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(-20, 80); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(10, 80); ctx.stroke();
-    }
-
-    drawKick(ctx, t) {
-        const rot = Math.min(t * 0.5, Math.PI); // Body rotation
-        const legExt = Math.sin(Math.min(t * 0.5, 1)) * 100;
-        
-        ctx.beginPath(); ctx.arc(-20, -70, 25, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-20, -45); ctx.lineTo(0, 30); ctx.stroke();
-        // Kicking Leg
-        ctx.strokeStyle = '#fff';
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(legExt, 0); ctx.stroke();
-        // Supporting Leg
-        ctx.strokeStyle = this.color;
-        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(-10, 80); ctx.stroke();
-        // Arms for balance
-        ctx.beginPath(); ctx.moveTo(-15, -35); ctx.lineTo(-50, -10); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-15, -35); ctx.lineTo(20, -60); ctx.stroke();
-    }
-
-    drawHit(ctx) {
-        ctx.beginPath(); ctx.arc(10, -60, 25, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(10, -35); ctx.lineTo(-10, 30); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-10, 30); ctx.lineTo(-40, 60); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(-10, 30); ctx.lineTo(20, 70); ctx.stroke();
-    }
-}
-
-/**
- * --- GAME ENGINE ---
- */
-const Game = {
-    canvas: null, ctx: null,
-    player: null, enemy: null,
-    shake: 0, hitStop: 0,
-    combo: 0, comboTimer: null,
-    active: false,
-
-    init: function() {
-        this.canvas = document.getElementById('stage');
-        this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        
-        Input.listen();
-        ParticleSystem.init();
-        
-        this.player = new Fighter({ name: 'FLAUST', x: 250, color: '#00f2ff', isPlayer: true });
-        this.enemy = new Fighter({ name: 'BOSS', x: this.canvas.width - 400, color: '#ff0055', isPlayer: false });
-        
-        document.getElementById('start-screen').style.display = 'none';
-        this.active = true;
-        this.loop();
-    },
-
-    resize: function() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    },
-
-    update: function() {
-        if (!this.active) return;
-        
-        // Hit Stop Effect (Freezes game briefly on hit)
-        if (this.hitStop > 0) {
-            this.hitStop--;
-            return;
-        }
-
-        this.player.update();
-        this.enemy.update();
-        this.checkCollisions();
-        
-        for(let p of ParticleSystem.pool) { if(p.active) p.update(); }
-        
-        if(this.shake > 0) this.shake *= 0.9;
-        this.syncUI();
-    },
-
-    checkCollisions: function() {
-        const fighters = [this.player, this.enemy];
-        fighters.forEach(attacker => {
-            const defender = (attacker === this.player) ? this.enemy : this.player;
-            
-            if ((attacker.state === 'PUNCH' || attacker.state === 'KICK') && !attacker.hasHitTarget) {
-                // Calculate Dynamic Hitbox based on state
-                const reach = (attacker.state === 'PUNCH') ? 90 : 120;
-                const hx = attacker.pos.x + (attacker.dir === 1 ? attacker.w : -reach);
-                const hy = attacker.pos.y + 40;
-
-                if (hx < defender.pos.x + defender.w && hx + reach > defender.pos.x &&
-                    hy < defender.pos.y + defender.h && hy + 80 > defender.pos.y) {
-                    
-                    attacker.hasHitTarget = true;
-                    defender.takeHit(attacker.attackDmg, attacker.dir);
-                    this.hitStop = SETTINGS.HIT_STOP_DURATION; // CRITICAL: Impact Feel
-                    
-                    if (attacker.isPlayer) this.handleCombo();
-                }
-            }
-        });
-    },
-
-    handleCombo: function() {
-        this.combo++;
-        const ui = document.getElementById('combo-display');
-        document.getElementById('combo-val').innerText = this.combo;
-        ui.style.opacity = 1;
-        ui.style.transform = 'scale(1.2) skewX(-15deg)';
-        
-        clearTimeout(this.comboTimer);
-        this.comboTimer = setTimeout(() => {
-            this.combo = 0;
-            ui.style.opacity = 0;
-        }, 1500);
-        
-        setTimeout(() => ui.style.transform = 'scale(1) skewX(-15deg)', 100);
-    },
-
-    syncUI: function() {
-        document.getElementById('hp-p1').style.width = this.player.hp + "%";
-        document.getElementById('hp-p2').style.width = this.enemy.hp + "%";
-        document.getElementById('energy-p1').style.width = this.player.energy + "%";
-        document.getElementById('energy-p2').style.width = this.enemy.energy + "%";
-
-        if (this.player.hp <= 0 || this.enemy.hp <= 0) {
-            this.active = false;
-            const ds = document.getElementById('death-screen');
-            ds.style.display = 'flex';
-            document.getElementById('win-text').innerText = (this.player.hp > 0) ? "VICTORY" : "DEFEAT";
-            document.getElementById('win-text').style.color = (this.player.hp > 0) ? '#00f2ff' : '#ff0055';
-        }
-    },
-
-    render: function() {
-        const ctx = this.ctx;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // BG Particles or Lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-        for(let i=0; i<this.canvas.width; i+=100) {
-            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, this.canvas.height); ctx.stroke();
-        }
-
-        // Camera Shake
-        if (this.shake > 0.5) {
-            ctx.translate((Math.random()-0.5)*this.shake, (Math.random()-0.5)*this.shake);
-        }
-
-        // Floor
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(0, this.canvas.height * SETTINGS.GROUND_Y);
-        ctx.lineTo(this.canvas.width, this.canvas.height * SETTINGS.GROUND_Y);
-        ctx.stroke();
-
-        this.player.draw(ctx);
-        this.enemy.draw(ctx);
-        
-        for(let p of ParticleSystem.pool) { if(p.active) p.draw(ctx); }
-    },
-
-    loop: function() {
-        this.update();
-        this.render();
-        requestAnimationFrame(() => this.loop());
-    }
-};
-
-// Ready
-window.onresize = () => Game.resize();
-</script>
+        // Ganti produk setiap 4 detik (termasuk waktu fade)
+        setInterval(showNextProduct, 4000); 
+    </script>
 </body>
 </html>
