@@ -3,195 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iklan Kilat - Beli 10 Gratis 1</title>
+    <title>Iklan Kilat Produk</title>
     <style>
-        /* Mengatur GIF sebagai background utama seluruh halaman */
         body {
-            font-family: 'Arial Black', sans-serif; /* Font lebih tebal untuk kesan iklan */
-            margin: 0;
-            padding: 0;
+            font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            /* LINK GIF ANDA SEBAGAI BACKGROUND */
+            margin: 0;
+            background-color: #222; /* Background gelap biar iklan kelihatan nyala */
+        }
+
+        /* Container Utama Iklan */
+        .ad-container {
+            width: 300px;
+            position: relative;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        /* LOGO DI ATAS FOTO GIF */
+        .logo-top {
+            width: 80px;
+            margin-bottom: 10px;
+        }
+
+        /* Area Foto GIF */
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px; /* Sesuaikan tinggi gif lo */
+            overflow: hidden;
+            border-radius: 4px;
             background-image: url('https://i.postimg.cc/x1yD1PBH/e5f0873b-c76b-4312-88bc-3bd67981a550.gif');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            overflow: hidden; /* Mencegah scrollbar */
         }
 
-        /* Overlay gelap agar teks lebih mudah dibaca di atas GIF */
-        body::before {
-            content: '';
+        /* Produk yang Fade In/Out di dalam GIF */
+        .product-overlay {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Hitam transparan 50% */
-            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
         }
 
-        /* Kontainer Iklan di Tengah */
-        #ad-box {
-            position: relative;
-            z-index: 2; /* Di atas overlay */
-            width: 320px;
-            background-color: rgba(255, 255, 255, 0.95); /* Putih sedikit transparan */
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 4px solid #ffc107; /* Border kuning emas */
+        .product-overlay.active {
+            opacity: 1;
         }
 
-        /* Teks Promo Utama */
-        #promo-header {
-            background-color: #ffc107;
-            color: #000;
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 1.5em;
+        /* TULISAN PROMO DI UJUNG BAWAH GIF */
+        .promo-tag {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 0, 0, 0.85); /* Warna merah transparan */
+            color: yellow;
+            font-weight: bold;
+            padding: 8px;
+            font-size: 1.1em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
+            animation: blink 1s infinite; /* Efek kedip biar kilat */
         }
 
-        /* Area Foto Produk */
-        #product-display {
-            width: 100%;
-            height: 200px;
-            position: relative;
-            overflow: hidden;
-            background-color: #fff;
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
 
-        #product-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Menjaga proporsi gambar produk */
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: opacity 1s ease-in-out; /* Efek Fade */
-            opacity: 0; /* Mulai tersembunyi */
+        /* Info Harga & Nama di Bawah */
+        .info {
+            padding: 10px 0;
         }
 
-        #product-image.active {
-            opacity: 1; /* Tampilkan produk aktif */
-        }
-
-        /* Informasi Produk */
-        #product-info {
-            padding: 15px;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        #product-name {
-            font-size: 1.3em;
-            color: #333;
-            margin-bottom: 5px;
-            height: 1.4em; /* Menjaga tinggi tetap */
-            overflow: hidden;
-        }
-
-        #product-price {
-            font-size: 2em;
-            color: #e44d26; /* Warna merah oranye */
+        .price {
+            font-size: 24px;
+            color: #e44d26;
             font-weight: bold;
             margin: 5px 0;
         }
 
-        /* Logo Utama di BAWAH Foto (di bawah info produk) */
-        #logo-container {
-            padding: 10px;
-            width: 100%;
-            background-color: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            border-top: 1px solid #eee;
+        .product-name {
+            font-weight: bold;
+            color: #333;
         }
-
-        #main-logo {
-            max-width: 80px;
-            height: auto;
-        }
-
     </style>
 </head>
 <body>
 
-    <div id="ad-box">
-        <h1 id="promo-header">Beli 10 GRATIS 1</h1>
-        
-        <div id="product-display">
-            <img id="product-image" src="" alt="Produk">
+    <div class="ad-container">
+        <img src="https://i.postimg.cc/hGYqktH0/download.png" class="logo-top" alt="Logo">
+
+        <div class="image-wrapper">
+            <img id="product-img" class="product-overlay" src="" alt="Product">
+            
+            <div class="promo-tag">Beli 10 GRATIS 1</div>
         </div>
 
-        <div id="product-info">
-            <div id="product-name">Memuat...</div>
-            <div id="product-price">3$</div>
-        </div>
-
-        <div id="logo-container">
-            <img id="main-logo" src="https://i.postimg.cc/hGYqktH0/download.png" alt="Logo Utama">
+        <div class="info">
+            <div id="p-name" class="product-name">KACANG TOJIN</div>
+            <div class="price">3$</div>
         </div>
     </div>
 
     <script>
         const products = [
-            { id: 0, name: "KACANG TOJIN", stock: 0, img: "https://i.postimg.cc/MZbTnf6L/184f7bee-21ba-4477-81c6-c9f7acfb487a.jpg" },
-            { id: 1, name: "KETAWA", stock: 0, img: "https://i.postimg.cc/ncFLBVMD/b95988fe-979d-48c6-891c-900e8f3e42f1.jpg" },
-            { id: 2, name: "KACANG TING TING", stock: 0, img: "https://i.postimg.cc/hP2trF7k/ab4902a9-b072-4159-8ebb-3fbf45c8fc0b.jpg" },
-            { id: 3, name: "MIE LIDI", stock: 0, img: "https://i.postimg.cc/K84vp9Pc/5bb5bc5e-cf70-47c1-86c5-dbd05e0cc616.jpg" },
-            { id: 4, name: "MAKARONI", stock: 0, img: "https://i.postimg.cc/9f7XCrgJ/9c04e078-ee93-4550-8310-851e9a34d691.jpg" },
-            { id: 5, name: "BASRENG", stock: 0, img: "https://i.postimg.cc/gjYGV4z5/601de701-a9b5-4bbf-8aa6-87b171349a64.jpg" },
-            { id: 6, name: "LUMPIA", stock: 0, img: "https://i.postimg.cc/ZYcbbkj9/38611567-5f9f-4899-9d33-cffa77b5e469.jpg" },
-            { id: 7, name: "KACANG ARAB", stock: 0, img: "https://i.postimg.cc/sDgV1n09/16ad7cba-62a3-48d4-a52c-25fe2f379b5e.jpg" },
-            { id: 8, name: "KACANG MADU", stock: 0, img: "https://i.postimg.cc/sDH3Wpk1/129f1f36-b98b-4f99-bdde-93c543eb32e8.jpg" }
+            { id: 0, name: "KACANG TOJIN", img: "https://i.postimg.cc/MZbTnf6L/184f7bee-21ba-4477-81c6-c9f7acfb487a.jpg" },
+            { id: 1, name: "KETAWA", img: "https://i.postimg.cc/ncFLBVMD/b95988fe-979d-48c6-891c-900e8f3e42f1.jpg" },
+            { id: 2, name: "KACANG TING TING", img: "https://i.postimg.cc/hP2trF7k/ab4902a9-b072-4159-8ebb-3fbf45c8fc0b.jpg" },
+            { id: 3, name: "MIE LIDI", img: "https://i.postimg.cc/K84vp9Pc/5bb5bc5e-cf70-47c1-86c5-dbd05e0cc616.jpg" },
+            { id: 4, name: "MAKARONI", img: "https://i.postimg.cc/9f7XCrgJ/9c04e078-ee93-4550-8310-851e9a34d691.jpg" },
+            { id: 5, name: "BASRENG", img: "https://i.postimg.cc/gjYGV4z5/601de701-a9b5-4bbf-8aa6-87b171349a64.jpg" },
+            { id: 6, name: "LUMPIA", img: "https://i.postimg.cc/ZYcbbkj9/38611567-5f9f-4899-9d33-cffa77b5e469.jpg" },
+            { id: 7, name: "KACANG ARAB", img: "https://i.postimg.cc/sDgV1n09/16ad7cba-62a3-48d4-a52c-25fe2f379b5e.jpg" },
+            { id: 8, name: "KACANG MADU", img: "https://i.postimg.cc/sDH3Wpk1/129f1f36-b98b-4f99-bdde-93c543eb32e8.jpg" }
         ];
 
-        let currentProductIndex = 0;
-        const productImage = document.getElementById('product-image');
-        const productName = document.getElementById('product-name');
+        let index = 0;
+        const imgEl = document.getElementById('product-img');
+        const nameEl = document.getElementById('p-name');
 
-        function updateProduct() {
-            const product = products[currentProductIndex];
-
-            // 1. Mulai Fade Out gambar lama
-            productImage.classList.remove('active');
-
-            // 2. Tunggu 1 detik (durasi transisi CSS), lalu ganti sumber dan Fade In
+        function slide() {
+            imgEl.classList.remove('active'); // Fade out
+            
             setTimeout(() => {
-                productImage.src = product.img;
-                productName.textContent = product.name;
-                
-                // Mulai Fade In gambar baru
-                productImage.classList.add('active');
-
-                // Siapkan indeks untuk produk berikutnya
-                currentProductIndex = (currentProductIndex + 1) % products.length;
-            }, 1000); 
+                imgEl.src = products[index].img;
+                nameEl.textContent = products[index].name;
+                imgEl.classList.add('active'); // Fade in
+                index = (index + 1) % products.length;
+            }, 800);
         }
 
-        // Tampilkan produk pertama segera
-        // (Sedikit trik agar tidak ada delay kosong di awal)
-        const firstProduct = products[0];
-        productImage.src = firstProduct.img;
-        productName.textContent = firstProduct.name;
-        productImage.classList.add('active');
-        currentProductIndex = 1;
-
-        // Jalankan pergantian setiap 4 detik
-        setInterval(updateProduct, 4000); 
-
+        setInterval(slide, 3000); // Ganti tiap 3 detik
+        slide(); // Jalankan pertama kali
     </script>
 </body>
 </html>
