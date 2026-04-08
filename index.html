@@ -3,48 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tersnacks Iklan Orbit Clean Center</title>
+    <title>Tersnacks Iklan Orbit Petir</title>
     <style>
         body {
             font-family: 'Arial Black', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #1a1a1a; 
-            overflow: hidden; /* Mencegah scrollbar muncul karena orbit */
+            overflow: hidden;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            /* Efek Kilat Background */
+            animation: bg-lightning 5s infinite;
         }
 
-        /* Container Utama */
+        /* ⚡ ANIMASI PETIR BACKGROUND ⚡ */
+        @keyframes bg-lightning {
+            0%, 95%, 98% { background-color: #1a1a1a; }
+            96%, 99% { background-color: #333; }
+        }
+
         .ad-system-container {
             position: relative;
-            width: 700px; /* Jangkauan orbit */
-            height: 700px; /* Jangkauan orbit */
+            width: 700px;
+            height: 700px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* 1. Kontainer Pusat (GIF Bersih) - Tetap & Jelas */
         .central-display {
-            width: 280px; /* Ukuran display tengah */
+            width: 280px;
             text-align: center;
             position: relative;
             z-index: 10;
         }
 
-        /* Logo Di Atas */
         .logo-top {
             width: 140px;
             margin-bottom: 20px;
             cursor: pointer;
-            filter: drop-shadow(0 0 10px rgba(255,165,0,0.5));
+            filter: drop-shadow(0 0 10px rgba(255,165,0,0.8));
         }
 
-        /* Area Foto GIF (Bersih, Nggak Ada Overlay Produk) */
+        /* AREA GIF DENGAN EFEK PETIR PINGGIRAN */
         .image-wrapper {
             width: 240px;
             height: 240px;
@@ -52,15 +57,21 @@
             overflow: hidden;
             border-radius: 12px;
             border: 4px solid #ffc107;
-            /* LINK GIF ASLI LO */
             background-image: url('https://i.postimg.cc/x1yD1PBH/e5f0873b-c76b-4312-88bc-3bd67981a550.gif');
             background-size: cover;
             background-position: center;
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+            /* Efek Petir Listrik */
+            animation: electric-glow 0.2s infinite alternate;
         }
 
-        /* Promo Tag di bawah GIF */
+        /* ⚡ ANIMASI LISTRIK DI PINGGIRAN GIF ⚡ */
+        @keyframes electric-glow {
+            0% { border-color: #ffc107; box-shadow: 0 0 10px #ffc107; }
+            100% { border-color: #fff; box-shadow: 0 0 25px #00e5ff, 0 0 10px #fff; }
+        }
+
         .promo-tag {
             position: absolute;
             bottom: 0;
@@ -72,15 +83,15 @@
             padding: 6px;
             font-size: 1.1em;
             text-transform: uppercase;
-            animation: blink-red 1s infinite;
+            animation: blink-red 0.5s infinite;
         }
 
-        /* Info Harga & Nama (Nama Ganti-ganti, Harga Fixed) */
         .central-price {
             font-size: 32px;
             color: #00ff00;
             margin: 0;
             line-height: 1;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5);
         }
 
         .central-product-name {
@@ -88,16 +99,15 @@
             margin: 5px 0 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            /* Efek transisi halus saat nama ganti */
             transition: opacity 0.5s ease-in-out; 
             opacity: 1;
+            text-shadow: 2px 2px 4px #000;
         }
         
         .central-product-name.fade-out {
             opacity: 0;
         }
 
-        /* Tombol Beli */
         .btn-beli {
             display: inline-block;
             background-color: #ff4500;
@@ -109,17 +119,17 @@
             font-weight: bold;
             transition: transform 0.2s;
             border: 2px solid #fff;
-            animation: btn-flash 1s infinite;
+            animation: btn-flash 0.8s infinite;
         }
 
-        /* 2. Sistem Produk Mengorbit (Tetap Sama) */
+        /* ORBIT SYSTEM */
         .orbit-container {
             position: absolute;
-            width: 600px; /* Radius orbit */
-            height: 600px; /* Radius orbit */
+            width: 600px;
+            height: 600px;
             border-radius: 50%;
-            border: 2px dashed rgba(255,255,255,0.1); /* Garis orbit samar */
-            animation: orbit-rotate 30s linear infinite; /* Rotasi putaran orbit */
+            border: 2px dashed rgba(0, 229, 255, 0.2); /* Cincin warna listrik */
+            animation: orbit-rotate 30s linear infinite;
         }
 
         .orbit-item {
@@ -141,25 +151,24 @@
             object-fit: cover;
         }
 
-        /* Efek Scaling saat dilewati */
+        /* HIGHLIGHT PETIR PADA PRODUK */
         .orbit-item.highlight {
             transform: translate(-50%, -50%) scale(1.4);
             z-index: 5;
-            box-shadow: 0 10px 30px rgba(255, 193, 7, 0.8);
-            border-color: #fff; /* Border putih saat highlight */
+            box-shadow: 0 0 20px #00e5ff, 0 0 40px #fff;
+            border-color: #00e5ff;
         }
 
-        /* 3. Animasi */
         @keyframes blink-red {
             0% { background: #ff0000; }
-            50% { background: #b30000; }
+            50% { background: #ffc107; color: #000; } /* Campur kuning biar silau */
             100% { background: #ff0000; }
         }
 
         @keyframes btn-flash {
-            0% { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
-            50% { box-shadow: 0 0 30px rgba(255, 69, 0, 0.8); }
-            100% { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 69, 0, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
         }
 
         @keyframes orbit-rotate {
@@ -172,8 +181,7 @@
 <body>
 
     <div class="ad-system-container">
-        <div id="orbit-ring" class="orbit-container">
-            </div>
+        <div id="orbit-ring" class="orbit-container"></div>
 
         <div class="central-display">
             <a href="https://tersnacks.pages.dev" target="_blank">
@@ -181,7 +189,7 @@
             </a>
 
             <div class="image-wrapper">
-                <div class="promo-tag">CHECKOUT SEBELUM HABIS</div>
+                <div class="promo-tag">Beli 10 GRATIS 1</div>
             </div>
 
             <div class="central-info">
@@ -212,7 +220,6 @@
         const orbitRing = document.getElementById('orbit-ring');
         const centralNameEl = document.getElementById('central-product-name');
 
-        // 1. Buat 9 Item Orbit dan Posisikan di Lingkaran (Sama)
         const totalItems = products.length;
         products.forEach((product, i) => {
             const angle = (i / totalItems) * Math.PI * 2;
@@ -234,17 +241,14 @@
             orbitRing.appendChild(orbitItem);
         });
 
-        // 2. Fungsi Transisi Clean
         function updateDisplay() {
-            // A. Update Tampilan Tengah (Hanya Nama Produk yang Fade Out/In)
-            centralNameEl.classList.add('fade-out'); // Fade out nama lama
+            centralNameEl.classList.add('fade-out'); 
 
             setTimeout(() => {
                 const product = products[currentIndex];
-                centralNameEl.textContent = product.name; // Ganti nama
-                centralNameEl.classList.remove('fade-out'); // Fade in nama baru
+                centralNameEl.textContent = product.name; 
+                centralNameEl.classList.remove('fade-out'); 
 
-                // B. Update Highlight di Orbit (Sama)
                 document.querySelectorAll('.orbit-item').forEach(el => el.classList.remove('highlight'));
                 
                 const highlightItem = document.getElementById(`orbit-item-${currentIndex}`);
@@ -252,15 +256,11 @@
                     highlightItem.classList.add('highlight');
                 }
 
-                // C. Siapkan Indeks Berikutnya
                 currentIndex = (currentIndex + 1) % products.length;
-            }, 500); // Waktu transisi nama
+            }, 500); 
         }
 
-        // Jalankan transisi pertama kali
         updateDisplay();
-
-        // Jalankan pergantian setiap 3.5 detik (termasuk waktu fade)
         setInterval(updateDisplay, 3500);
     </script>
 </body>
