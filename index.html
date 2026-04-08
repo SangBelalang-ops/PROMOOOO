@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tersnacks Iklan Orbit</title>
+    <title>Tersnacks Iklan Orbit Clean Center</title>
     <style>
         body {
             font-family: 'Arial Black', sans-serif;
@@ -28,7 +28,7 @@
             align-items: center;
         }
 
-        /* 1. Kontainer Pusat (GIF) - Tetap & Jelas */
+        /* 1. Kontainer Pusat (GIF Bersih) - Tetap & Jelas */
         .central-display {
             width: 280px; /* Ukuran display tengah */
             text-align: center;
@@ -44,7 +44,7 @@
             filter: drop-shadow(0 0 10px rgba(255,165,0,0.5));
         }
 
-        /* Area Foto GIF (Ukuran disesuaikan) */
+        /* Area Foto GIF (Bersih, Nggak Ada Overlay Produk) */
         .image-wrapper {
             width: 240px;
             height: 240px;
@@ -52,27 +52,12 @@
             overflow: hidden;
             border-radius: 12px;
             border: 4px solid #ffc107;
+            /* LINK GIF ASLI LO */
             background-image: url('https://i.postimg.cc/x1yD1PBH/e5f0873b-c76b-4312-88bc-3bd67981a550.gif');
             background-size: cover;
             background-position: center;
             position: relative;
             box-shadow: 0 0 30px rgba(0,0,0,0.7);
-        }
-
-        /* Produk di dalam GIF */
-        .product-overlay {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-            position: absolute;
-            top: 10%;
-            left: 10%;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-        }
-
-        .product-overlay.active {
-            opacity: 1;
         }
 
         /* Promo Tag di bawah GIF */
@@ -90,7 +75,7 @@
             animation: blink-red 1s infinite;
         }
 
-        /* Info Harga & Nama */
+        /* Info Harga & Nama (Nama Ganti-ganti, Harga Fixed) */
         .central-price {
             font-size: 32px;
             color: #00ff00;
@@ -103,6 +88,13 @@
             margin: 5px 0 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            /* Efek transisi halus saat nama ganti */
+            transition: opacity 0.5s ease-in-out; 
+            opacity: 1;
+        }
+        
+        .central-product-name.fade-out {
+            opacity: 0;
         }
 
         /* Tombol Beli */
@@ -120,7 +112,7 @@
             animation: btn-flash 1s infinite;
         }
 
-        /* 2. Sistem Produk Mengorbit */
+        /* 2. Sistem Produk Mengorbit (Tetap Sama) */
         .orbit-container {
             position: absolute;
             width: 600px; /* Radius orbit */
@@ -130,21 +122,19 @@
             animation: orbit-rotate 30s linear infinite; /* Rotasi putaran orbit */
         }
 
-        /* Posisi Individu Produk di Orbit (Absolute ke .orbit-container) */
         .orbit-item {
             position: absolute;
-            width: 70px; /* Ukuran produk orbit kecil */
-            height: 70px; /* Ukuran produk orbit kecil */
+            width: 70px;
+            height: 70px;
             border-radius: 10px;
             background-color: white;
             border: 3px solid #ffc107;
             overflow: hidden;
-            transform: translate(-50%, -50%); /* Center-kan produk pada koordinat */
+            transform: translate(-50%, -50%);
             box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            transition: transform 0.3s ease-out; /* Untuk efek scaling */
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
         }
 
-        /* Gambar di dalam Item Orbit */
         .orbit-item img {
             width: 100%;
             height: 100%;
@@ -153,9 +143,10 @@
 
         /* Efek Scaling saat dilewati */
         .orbit-item.highlight {
-            transform: translate(-50%, -50%) scale(1.4); /* Membesar saat highlight */
+            transform: translate(-50%, -50%) scale(1.4);
             z-index: 5;
-            box-shadow: 0 10px 30px rgba(255, 193, 7, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 193, 7, 0.8);
+            border-color: #fff; /* Border putih saat highlight */
         }
 
         /* 3. Animasi */
@@ -190,7 +181,6 @@
             </a>
 
             <div class="image-wrapper">
-                <img id="central-product-img" class="product-overlay" src="" alt="Product">
                 <div class="promo-tag">Beli 10 GRATIS 1</div>
             </div>
 
@@ -220,29 +210,22 @@
 
         let currentIndex = 0;
         const orbitRing = document.getElementById('orbit-ring');
-        const centralImgEl = document.getElementById('central-product-img');
         const centralNameEl = document.getElementById('central-product-name');
 
-        // 1. Buat 9 Item Orbit dan Posisikan di Lingkaran
+        // 1. Buat 9 Item Orbit dan Posisikan di Lingkaran (Sama)
         const totalItems = products.length;
         products.forEach((product, i) => {
-            // Hitung sudut dalam radian
             const angle = (i / totalItems) * Math.PI * 2;
-            
-            // Hitung posisi (x, y) pada lingkaran dengan radius 300px
-            // Pusat orbit ada di (300, 300)
             const radius = 300; 
             const x = 300 + radius * Math.cos(angle);
             const y = 300 + radius * Math.sin(angle);
 
-            // Buat elemen
             const orbitItem = document.createElement('div');
             orbitItem.className = 'orbit-item';
             orbitItem.id = `orbit-item-${i}`;
             orbitItem.style.left = `${x}px`;
             orbitItem.style.top = `${y}px`;
             
-            // Tambahkan gambar
             const img = document.createElement('img');
             img.src = product.img;
             img.alt = product.name;
@@ -251,22 +234,19 @@
             orbitRing.appendChild(orbitItem);
         });
 
-        // 2. Fungsi Transisi
+        // 2. Fungsi Transisi Clean
         function updateDisplay() {
-            // A. Update Tampilan Tengah (Fade Out -> Ganti -> Fade In)
-            centralImgEl.classList.remove('active'); // Fade out
+            // A. Update Tampilan Tengah (Hanya Nama Produk yang Fade Out/In)
+            centralNameEl.classList.add('fade-out'); // Fade out nama lama
 
             setTimeout(() => {
                 const product = products[currentIndex];
-                centralImgEl.src = product.img;
-                centralNameEl.textContent = product.name;
-                centralImgEl.classList.add('active'); // Fade in
+                centralNameEl.textContent = product.name; // Ganti nama
+                centralNameEl.classList.remove('fade-out'); // Fade in nama baru
 
-                // B. Update Highlight di Orbit
-                // Hapus highlight lama
+                // B. Update Highlight di Orbit (Sama)
                 document.querySelectorAll('.orbit-item').forEach(el => el.classList.remove('highlight'));
                 
-                // Tambahkan highlight ke item yang sesuai
                 const highlightItem = document.getElementById(`orbit-item-${currentIndex}`);
                 if (highlightItem) {
                     highlightItem.classList.add('highlight');
@@ -274,7 +254,7 @@
 
                 // C. Siapkan Indeks Berikutnya
                 currentIndex = (currentIndex + 1) % products.length;
-            }, 800); // Waktu yang sama dengan transition CSS
+            }, 500); // Waktu transisi nama
         }
 
         // Jalankan transisi pertama kali
