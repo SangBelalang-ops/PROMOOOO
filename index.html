@@ -1,122 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE ARCHIVE | DIGITAL LIBRARY</title>
     <style>
         :root {
-            --neon: #00d4ff;
-            --glass: rgba(10, 25, 41, 0.85);
+            --accent: #00d4ff;
+            --bg: #0a1929;
+            --glass: rgba(15, 34, 56, 0.9);
         }
 
-        /* HEADER CORE */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; background: var(--bg); color: white;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & AI NAV */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
             background: var(--glass); backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
             padding: 15px 0;
         }
 
-        .header-container {
+        .nav-container {
             max-width: 1200px; margin: 0 auto; display: flex;
-            justify-content: space-between; align-items: center; padding: 0 25px;
+            justify-content: space-between; align-items: center; padding: 0 20px;
         }
 
-        .logo {
-            font-size: 1.5em; font-weight: 900; color: #fff; text-decoration: none;
-            letter-spacing: 2px; text-transform: uppercase;
-        }
-        .logo span { color: var(--neon); }
+        .logo { font-weight: 900; letter-spacing: 2px; color: var(--accent); font-size: 1.2em; }
 
-        /* AI SEARCH BAR DI HEADER */
-        .ai-input-wrapper {
-            position: relative; width: 40%;
+        .ai-search-box {
+            position: relative; width: 45%;
         }
+
         .ai-input {
-            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--neon);
-            border-radius: 50px; padding: 10px 45px 10px 20px; color: #fff;
-            outline: none; font-size: 0.9em; transition: 0.3s;
-        }
-        .ai-input:focus { box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
-
-        .ai-status {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            font-size: 1.2em; cursor: pointer;
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(0, 212, 255, 0.5);
+            padding: 10px 20px; border-radius: 30px; color: white; outline: none;
+            transition: 0.3s;
         }
 
-        /* AI RESPONSE BOX */
-        #ai-response {
-            position: absolute; top: 100%; left: 0; width: 100%;
-            background: var(--glass); margin-top: 15px; border-radius: 15px;
-            padding: 15px; border: 1px solid var(--neon); display: none;
-            font-size: 0.85em; line-height: 1.6; box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        .ai-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); }
+
+        #ai-bubble {
+            position: absolute; top: 55px; left: 0; width: 100%;
+            background: #162a41; border: 1px solid var(--accent);
+            border-radius: 15px; padding: 15px; display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 0.9em;
         }
 
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
-            background-size: 200% 100%; animation: loading 1.5s infinite;
+        /* HERO SECTION */
+        .hero {
+            padding: 150px 20px 60px; text-align: center;
+            background: radial-gradient(circle at top, rgba(0,212,255,0.1) 0%, transparent 70%);
         }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    </style>
-</head>
-<body>
 
-<header>
-    <div class="header-container">
-        <a href="#" class="logo">THE<span>ARCHIVE</span></a>
-        
-        <div class="ai-input-wrapper">
-            <input type="text" id="aiQuery" class="ai-input" placeholder="Tanya AI tentang koleksi buku...">
-            <div class="ai-status" id="aiBtn">✨</div>
-            
-            <div id="ai-response">
-                <div id="ai-text">Halo Alvin! Mau cari inspirasi buku apa hari ini?</div>
-            </div>
-        </div>
-
-        <nav style="display: flex; gap: 20px; font-size: 0.8em; font-weight: 800;">
-            <a href="#" style="color: #fff; text-decoration: none;">HOME</a>
-            <a href="#" style="color: var(--neon); text-decoration: none;">LIBRARY</a>
-        </nav>
-    </div>
-</header>
-
-<script>
-    const API_KEY = "AIzaSyDoC3xsK5VY8lLKlWgGkCKW7rooQvylORo";
-    const aiInput = document.getElementById('aiQuery');
-    const aiBox = document.getElementById('ai-response');
-    const aiText = document.getElementById('ai-text');
-
-    aiInput.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter') {
-            const query = aiInput.value;
-            if (!query) return;
-
-            // Tampilkan loading
-            aiBox.style.display = 'block';
-            aiText.innerHTML = '<div class="shimmer" style="height:20px; width:100%"></div>';
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Kamu adalah asisten perpustakaan digital bernama The Archive. Jawab dengan singkat dan keren: ${query}` }] }]
-                    })
-                });
-
-                const data = await response.json();
-                const result = data.candidates[0].content.parts[0].text;
-                aiText.innerText = result;
-            } catch (error) {
-                aiText.innerText = "Waduh, koneksi AI lagi stuck, Vin! Cek API Key lo.";
-            }
+        /* BOOK GRID */
+        .catalog {
+            max-width: 1100px; margin: 0 auto; padding: 40px 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
         }
-    });
 
-    // Sembunyikan kalau klik di luar
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.ai-input-wrapper')) aiBox.style.display = 'none';
-    });
-</script>
+        .book-card {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
+        }
 
-</body>
-</html>
+        .book-card:hover { transform: translateY(-10px); border-color: var(--accent); }
+
+        .cover {
+            width: 100%; height: 280px; object-fit: cover; border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .title { font-weight: 700; color: var(--accent); margin-bottom: 5px; }
+        .author { font-size: 0.8
