@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ARCHIVE // ALVIN P.</title>
+    <title>THE ARCHIVE // ALVIN P. HUB</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon: #00d4ff;
             --bg: #030712;
-            --glass: rgba(15, 23, 42, 0.8);
+            --card-bg: rgba(15, 23, 42, 0.8);
         }
 
         body {
@@ -18,9 +18,9 @@
             overflow-x: hidden; scroll-behavior: smooth;
         }
 
-        /* CURSOR GLOW EFFECT */
+        /* CURSOR GLOW */
         #glow {
-            position: fixed; width: 400px; height: 400px;
+            position: fixed; width: 500px; height: 500px;
             background: radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%);
             border-radius: 50%; pointer-events: none; z-index: 9999;
             transform: translate(-50%, -50%); transition: 0.1s linear;
@@ -29,8 +29,8 @@
         /* HEADER */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.15); padding: 15px 0;
+            background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2); padding: 15px 0;
         }
 
         .nav-container {
@@ -38,9 +38,9 @@
             justify-content: space-between; align-items: center; padding: 0 25px;
         }
 
-        .logo { font-weight: 900; letter-spacing: 4px; color: var(--neon); font-size: 1.4em; }
+        .logo { font-weight: 900; letter-spacing: 5px; color: var(--neon); font-size: 1.5em; text-transform: uppercase; }
 
-        .ai-wrapper { position: relative; width: 40%; }
+        .ai-wrapper { position: relative; width: 45%; }
         .ai-input {
             width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(0, 212, 255, 0.3);
             padding: 12px 25px; border-radius: 50px; color: white; outline: none; transition: 0.3s;
@@ -51,36 +51,36 @@
             position: absolute; top: 60px; left: 0; width: 100%;
             background: #0f172a; border: 1px solid var(--neon);
             border-radius: 15px; padding: 20px; display: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 2000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
 
-        /* HERO & CONTENT */
-        section { padding: 150px 20px 50px; max-width: 1100px; margin: 0 auto; }
-        .hero { text-align: center; }
-        .hero h1 { font-size: 4em; font-weight: 900; margin: 0; letter-spacing: -2px; }
+        /* HERO & MUSIC */
+        section { padding: 180px 20px 50px; max-width: 1100px; margin: 0 auto; }
+        .hero-text h1 { font-size: 5em; font-weight: 900; margin: 0; letter-spacing: -3px; }
+        .hero-text p { opacity: 0.6; font-size: 1.2em; margin-bottom: 40px; }
 
-        .music-card {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px; padding: 25px; margin: 40px 0;
-            display: flex; align-items: center; gap: 25px;
-            transition: 0.3s;
+        .featured-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 25px; padding: 30px; display: flex; align-items: center; gap: 30px;
+            transition: 0.4s; position: relative; overflow: hidden;
         }
-        .music-card:hover { border-color: var(--neon); transform: scale(1.02); }
-        .art { width: 120px; height: 120px; background: #1e293b; border-radius: 12px; flex-shrink: 0; overflow: hidden; }
+        .featured-card:hover { border-color: var(--neon); transform: scale(1.02); }
+
+        .album-img { width: 180px; height: 180px; border-radius: 15px; object-fit: cover; }
 
         /* GRID CATALOG */
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px; margin-top: 50px;
+        .catalog-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px; margin-top: 60px;
         }
-        .card {
-            background: var(--glass); border-radius: 15px; padding: 15px;
+        .item-card {
+            background: var(--card-bg); border-radius: 20px; padding: 15px;
             border: 1px solid rgba(255,255,255,0.03); transition: 0.3s;
         }
-        .card:hover { border-color: var(--neon); transform: translateY(-5px); }
-        .cover { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
+        .item-card:hover { transform: translateY(-10px); border-color: var(--neon); }
+        .item-cover { width: 100%; height: 260px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; }
 
-        footer { text-align: center; padding: 80px; opacity: 0.3; font-size: 0.7em; letter-spacing: 4px; }
+        footer { text-align: center; padding: 100px; opacity: 0.2; font-size: 0.8em; letter-spacing: 5px; }
 
         .shimmer { height: 15px; background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: load 1.5s infinite; }
         @keyframes load { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -94,94 +94,89 @@
     <div class="nav-container">
         <div class="logo">ARCHIVE</div>
         <div class="ai-wrapper">
-            <input type="text" id="aiInput" class="ai-input" placeholder="Tanya AI (Tekan Enter)...">
+            <input type="text" id="aiInput" class="ai-input" placeholder="Tanya AI Gemini...">
             <div id="ai-bubble"></div>
         </div>
     </div>
 </header>
 
-<section class="hero">
-    <h1>CYBER ARCHIVE</h1>
-    <p style="opacity: 0.6;">Alvin Phanestu // Personal Digital Archive & Studio</p>
-    
-    <div class="music-card">
-        <div class="art"><img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400" style="width:100%; height:100%; object-fit:cover;"></div>
+<section>
+    <div class="hero-text">
+        <h1>ALVIN P. HUB</h1>
+        <p>Producer // Songwriter // Archive Specialist</p>
+    </div>
+
+    <div class="featured-card">
+        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400" class="album-img">
         <div style="text-align: left;">
-            <div style="color: var(--neon); font-size: 0.8em; font-weight: 800;">CURRENT PROJECT</div>
-            <h2 style="margin: 5px 0;">Mini Album 2026</h2>
-            <p style="opacity: 0.5; font-size: 0.9em; margin: 0;">Mixing & Mastering phase. Indie-pop vibes.</p>
+            <div style="color: var(--neon); font-weight: 800; font-size: 0.8em; letter-spacing: 2px;">LATEST WORK</div>
+            <h2 style="margin: 10px 0; font-size: 2em;">INDIE POP PROJECT 2026</h2>
+            <p style="opacity: 0.5;">Fokus ke Indie-pop & Alternative Rock. Sedang proses mixing untuk mini album perdana.</p>
         </div>
     </div>
 
-    <div class="grid" id="mainGrid"></div>
+    <div class="catalog-grid" id="catalog">
+        </div>
 </section>
 
-<footer>PRODUCED BY ALVIN PHANESTU // 2026</footer>
+<footer>© 2026 ALVIN PHANESTU // DIGITAL ARCHIVE</footer>
 
 <script>
-    // --- INTEGRASI API KEY LO ---
-    const API_KEY = "AIzaSyBC8-h450CojUbAMjNSrt9u7Tfh0jEkEAk"; 
+    // --- API KEYS SETUP ---
+    const GEMINI_KEY = "AIzaSyBC8-h450CojUbAMjNSrt9u7Tfh0jEkEAk"; // Gemini lo
+    const COID_KEY = "xy9sQ9AcQwFZcNeiSTSrwZoEDGh9dsdW7e8IJ2GqAlgsb72oqX"; // API.co.id lo
 
-    // Cursor Glow
+    // Glow Logic
     const glow = document.getElementById('glow');
     document.addEventListener('mousemove', (e) => {
         glow.style.left = e.clientX + 'px';
         glow.style.top = e.clientY + 'px';
     });
 
-    // Data Library
-    const data = [
-        { title: "One OK Rock Collection", auth: "Taka & Co", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=400" },
-        { title: "Accounting Logs", auth: "Admin Archive", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400" },
-        { title: "Indie Pop Aesthetics", auth: "Hindia Inspired", img: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=400" },
-        { title: "Digital Snack Hub", auth: "Tersnacks ID", img: "https://images.unsplash.com/photo-1551288049-bbbda536ad79?w=400" }
+    // Catalog Data
+    const items = [
+        { title: "One OK Rock Story", auth: "Archives", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=400" },
+        { title: "Indie Pop Aesthetics", auth: "Moodboard", img: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=400" },
+        { title: "Spreadsheet Master", auth: "Work Tool", img: "https://images.unsplash.com/photo-1551288049-bbbda536ad79?w=400" },
+        { title: "Tersnacks ID", auth: "Digital Snack", img: "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=400" }
     ];
 
-    const grid = document.getElementById('mainGrid');
-    data.forEach(item => {
-        grid.innerHTML += `
-            <div class="card">
-                <img src="${item.img}" class="cover">
-                <div style="font-weight:700; color:var(--neon)">${item.title}</div>
-                <div style="font-size:0.8em; opacity:0.5">${item.auth}</div>
+    const catalog = document.getElementById('catalog');
+    items.forEach(i => {
+        catalog.innerHTML += `
+            <div class="item-card">
+                <img src="${i.img}" class="item-cover">
+                <div style="font-weight:900; color:var(--neon)">${i.title}</div>
+                <div style="font-size:0.8em; opacity:0.4">${i.auth}</div>
             </div>
         `;
     });
 
-    // AI GEMINI CORE
+    // AI GEMINI INTEGRATION
     const aiInput = document.getElementById('aiInput');
     const aiBubble = document.getElementById('ai-bubble');
 
     aiInput.addEventListener('keypress', async (e) => {
         if(e.key === 'Enter') {
-            const prompt = aiInput.value;
-            if(!prompt) return;
-
+            const val = aiInput.value;
+            if(!val) return;
             aiBubble.style.display = 'block';
             aiBubble.innerHTML = '<div class="shimmer"></div>';
-
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Kamu adalah asisten perpustakaan digital Alvin bernama ArchiveAI. Jawab dengan sangat singkat, gaul, dan solutif: ${prompt}` }]}]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Kamu adalah asisten pribadi Alvin bernama ArchiveAI. Jawab singkat & gaul: ${val}` }]}] })
                 });
-
-                const json = await response.json();
-                const output = json.candidates[0].content.parts[0].text;
-                aiBubble.innerHTML = `<b style="color:var(--neon)">ArchiveAI:</b><br>${output}`;
-            } catch (err) {
-                aiBubble.innerHTML = `<span style="color:red">Gagal konek ke Gemini. Cek kuota atau key lo, Vin!</span>`;
+                const d = await res.json();
+                aiBubble.innerHTML = `<b style="color:var(--neon)">ArchiveAI:</b><br>${d.candidates[0].content.parts[0].text}`;
+            } catch(e) {
+                aiBubble.innerHTML = "Waduh Vin, stuck! Cek koneksi.";
             }
         }
     });
 
-    document.addEventListener('mousedown', (e) => {
-        if(!e.target.closest('.ai-wrapper')) aiBubble.style.display = 'none';
-    });
+    document.addEventListener('mousedown', (e) => { if(!e.target.closest('.ai-wrapper')) aiBubble.style.display = 'none'; });
 </script>
-
 </body>
 </html>
