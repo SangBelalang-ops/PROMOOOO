@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MULTIVERSE EXPLORER PRO // ALVIN P.</title>
+    <title>GALAXY JUKEBOX // ONE OK ROCK EDITION</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
@@ -16,268 +16,181 @@
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        /* UI OVERLAY */
+        /* --- BACKGROUND AMBIENT IMAGE --- */
+        #ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2; opacity: 0; transition: 1.5s ease-in-out;
+            background-size: cover; background-position: center;
+            filter: grayscale(100%) brightness(40%) blur(5px);
+            pointer-events: none;
+        }
+
+        /* --- UI OVERLAY --- */
         .overlay { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
-        header { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 8px; color: var(--neon); text-transform: uppercase; text-shadow: 0 0 15px var(--neon); }
+        .logo { font-family: 'Syncopate'; font-weight: 700; font-size: 1.2rem; letter-spacing: 10px; color: var(--neon); text-shadow: 0 0 15px var(--neon); }
 
-        .controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; pointer-events: auto; z-index: 100; }
-        .btn { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 243, 255, 0.2); padding: 12px 25px; border-radius: 50px; color: white; cursor: pointer; backdrop-filter: blur(10px); font-family: 'Syncopate', sans-serif; font-size: 0.65rem; transition: 0.3s; letter-spacing: 2px; text-transform: uppercase; }
-        .btn:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--neon); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
-        .btn.active { background: rgba(0, 243, 255, 0.15); border-color: var(--neon); color: var(--neon); }
+        /* --- MUSIC PLAYER HUD --- */
+        .music-hud {
+            position: fixed; top: 100px; right: 40px; text-align: right;
+            pointer-events: auto; opacity: 0; transform: translateX(50px);
+            transition: 0.8s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        .music-hud.active { opacity: 1; transform: translateX(0); }
+        .track-info h2 { font-family: 'Syncopate'; font-size: 2.5rem; margin: 0; color: #fff; text-transform: uppercase; }
+        .track-info p { color: var(--neon); letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 20px; }
+        
+        .track-list { list-style: none; }
+        .track-list li { 
+            padding: 8px 0; font-size: 0.9rem; opacity: 0.6; cursor: pointer; 
+            transition: 0.3s; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .track-list li:hover { opacity: 1; color: var(--neon); padding-right: 10px; }
 
-        .info-panel { position: fixed; top: 50%; right: 30px; transform: translateY(-50%); text-align: right; max-width: 280px; pointer-events: none; opacity: 0; transition: 0.5s ease; }
-        .info-panel.visible { opacity: 1; }
-        .info-panel h2 { font-family: 'Syncopate', sans-serif; font-size: 2.5rem; margin: 0; text-transform: uppercase; color: var(--neon); text-shadow: 0 0 20px var(--neon); }
-        .info-panel p { font-size: 0.85rem; opacity: 0.7; letter-spacing: 1px; margin-top: 8px; line-height: 1.6; }
+        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; pointer-events: auto; z-index: 100; }
+        .btn { 
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 243, 255, 0.3); padding: 15px 30px; 
+            border-radius: 5px; color: white; cursor: pointer; backdrop-filter: blur(10px); 
+            font-family: 'Syncopate'; font-size: 0.7rem; transition: 0.3s; letter-spacing: 2px;
+        }
+        .btn:hover { background: var(--neon); color: black; }
 
-        .help-text { position: fixed; top: 80px; left: 30px; font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; pointer-events: none; }
-
-        footer { display: flex; justify-content: space-between; font-size: 0.65rem; letter-spacing: 3px; opacity: 0.3; }
+        /* Simbol Audio Playing */
+        .playing-icon { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; }
     </style>
 </head>
 <body>
 
+<div id="ambient-bg"></div>
 <div id="canvas-container"></div>
 
 <div class="overlay">
-    <header>
-        <div class="logo">MULTIVERSE.ARC</div>
-        <div style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 3px;">EXPLORER MODE: ACTIVE</div>
-    </header>
+    <header><div class="logo">GALAXY.JUKEBOX</div></header>
 
-    <div class="help-text">NAVIGASI: KLIK KIRI (PUTAR) // KLIK KANAN (GESER) // SCROLL (ZOOM)</div>
-
-    <div class="info-panel" id="infoPanel">
-        <h2 id="galaxy-name">Deep Space</h2>
-        <p id="galaxy-desc">Scanning coordinates...</p>
+    <div class="music-hud" id="musicHud">
+        <div class="track-info">
+            <p id="artist-tag">NOW ENTERING</p>
+            <h2 id="current-galaxy">DEEP SPACE</h2>
+        </div>
+        <ul class="track-list" id="playlist">
+            </ul>
     </div>
 
     <div class="controls">
-        <div class="btn" id="btn-blue" onclick="travelTo('blue')">Cyan Galaxy</div>
-        <div class="btn" id="btn-red" onclick="travelTo('red')">Crimson Sector</div>
-        <div class="btn" id="btn-yellow" onclick="travelTo('yellow')">Amber Cluster</div>
-        <div class="btn" id="btn-sol" onclick="travelTo('sol')">Sol System</div>
+        <div class="btn" onclick="travelTo('oor')">ONE OK ROCK GALAXY</div>
+        <div class="btn" onclick="travelTo('indie')">IDGITAF & HINDIA</div>
+        <div class="btn" onclick="travelTo('reset')">RESET POSITION</div>
     </div>
-
-    <footer>
-        <div>COORDINATES: CLASSIFIED</div>
-        <div>EST. 2026 // ALVIN P. // SYSTEM V.EXPLORER</div>
-    </footer>
 </div>
 
 <script>
-    /**
-     * THREE.JS ENGINE - THE CORE EXPLORER
-     */
-    let scene, camera, renderer, controls, systems = {}, ufo;
+    let scene, camera, renderer, controls, systems = {};
     const clock = new THREE.Clock();
+
+    // Data Musik & Background
+    const galaxyData = {
+        oor: {
+            name: "ONE OK ROCK",
+            tag: "ALTERNATIVE ROCK DIMENSION",
+            bg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600", // Ganti ke URL foto OOR kalo ada
+            tracks: ["The Beginning", "Wherever You Are", "Save Yourself", "Vandalize"],
+            color: 0xff0000,
+            pos: { x: -60, y: 10, z: -50 }
+        },
+        indie: {
+            name: "INDIE VIBES",
+            tag: "IDGITAF & HINDIA SECTOR",
+            bg: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=1600",
+            tracks: ["Satu-Satu", "Rumah ke Rumah", "Evaluasi", "Takut"],
+            color: 0xffff00,
+            pos: { x: 60, y: -10, z: -80 }
+        }
+    };
 
     function init() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 4000);
-        camera.position.set(0, 50, 150);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 100, 200);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // --- 1. ORBIT CONTROLS (FULL INTERACTIVE) ---
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // Halus
-        controls.dampingFactor = 0.05;
-        controls.screenSpacePanning = false;
-        controls.minDistance = 10;
-        controls.maxDistance = 1000;
+        controls.enableDamping = true;
 
-        // --- 2. MULTIVERSE OBJECTS ---
-        // Create 3 Ultra Galaxy Systems
-        systems.blue = createUltraGalaxy(0x00f3ff, { x: -100, y: 0, z: -50 });
-        systems.red = createUltraGalaxy(0xff4d4d, { x: 100, y: 20, z: -100 });
-        systems.yellow = createUltraGalaxy(0xffcc00, { x: 0, y: -40, z: -150 });
+        // Create Galaxies
+        systems.oor = createGalaxy(galaxyData.oor.color, galaxyData.oor.pos);
+        systems.indie = createGalaxy(galaxyData.indie.color, galaxyData.indie.pos);
 
-        // Create Sol System (Tata Surya Kita)
-        systems.sol = createSolSystem({ x: 0, y: 0, z: 200 });
-
-        // Create Flying UFO
-        ufo = createUFO();
-        scene.add(ufo);
-
-        // Ambient Starfield Background
+        // Starfield
         const starGeo = new THREE.BufferGeometry();
         const starCoords = [];
-        for(let i=0; i<30000; i++) {
-            starCoords.push((Math.random()-0.5)*2500, (Math.random()-0.5)*2500, (Math.random()-0.5)*2500);
-        }
+        for(let i=0; i<15000; i++) starCoords.push((Math.random()-0.5)*2000, (Math.random()-0.5)*2000, (Math.random()-0.5)*2000);
         starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
-        scene.add(new THREE.Points(starGeo, starMat));
-
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0x404040, 2); scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); directionalLight.position.set(1, 1, 1); scene.add(directionalLight);
+        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 })));
 
         animate();
     }
 
-    // GALAXY CREATOR (Ultra Visual)
-    function createUltraGalaxy(color, pos) {
+    function createGalaxy(color, pos) {
         const group = new THREE.Group();
-        const particleCount = 20000; // Dense
         const geo = new THREE.BufferGeometry();
-        const coords = [], colors = [];
-
-        for (let i = 0; i < particleCount; i++) {
-            const r = Math.random() * 40; // Galaxy radius
+        const coords = [];
+        for (let i = 0; i < 10000; i++) {
+            const r = Math.random() * 30;
             const theta = Math.random() * Math.PI * 2;
-            const spiral = r * 0.35; // Spiral arm
-            const yDist = (Math.random() - 0.5) * 6 * (1 - r/45); // Vertical thickness
-            
-            coords.push(Math.cos(theta + spiral) * r, yDist, Math.sin(theta + spiral) * r);
-
-            // Color variance
-            const variance = 0.2;
-            const rV = ((color >> 16) & 0xFF) / 255 + (Math.random()-0.5)*variance;
-            const gV = ((color >> 8) & 0xFF) / 255 + (Math.random()-0.5)*variance;
-            const bV = (color & 0xFF) / 255 + (Math.random()-0.5)*variance;
-            colors.push(rV, gV, bV);
+            const spiral = r * 0.4;
+            coords.push(Math.cos(theta + spiral) * r, (Math.random()-0.5)*5, Math.sin(theta + spiral) * r);
         }
         geo.setAttribute('position', new THREE.Float32BufferAttribute(coords, 3));
-        geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        const mat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
-        const points = new THREE.Points(geo, mat);
+        const points = new THREE.Points(geo, new THREE.PointsMaterial({ color: color, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending }));
         group.add(points);
         group.position.set(pos.x, pos.y, pos.z);
         scene.add(group);
         return group;
     }
 
-    // SOL SYSTEM CREATOR (Tata Surya)
-    function createSolSystem(pos) {
-        const group = new THREE.Group();
+    function travelTo(key) {
+        const bg = document.getElementById('ambient-bg');
+        const hud = document.getElementById('musicHud');
 
-        // MATAHARI (The Sun) - Pake Glow Shader Sederhana
-        const sunGeo = new THREE.SphereGeometry(10, 32, 32);
-        const sunMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 }); // Warna dasar
-        const sun = new THREE.Mesh(sunGeo, sunMat);
-        group.add(sun);
+        if(key === 'reset') {
+            gsap.to(camera.position, { x: 0, y: 100, z: 200, duration: 2 });
+            bg.style.opacity = 0;
+            hud.classList.remove('active');
+            return;
+        }
+
+        const data = galaxyData[key];
         
-        // Sun Glow Effect (Additive Blending)
-        const glowGeo = new THREE.SphereGeometry(12, 32, 32);
-        const glowMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending });
-        group.add(new THREE.Mesh(glowGeo, glowMat));
+        // 1. Zoom Camera
+        gsap.to(camera.position, { x: data.pos.x, y: data.pos.y + 10, z: data.pos.z + 40, duration: 2.5, ease: "expo.inOut" });
+        gsap.to(controls.target, { x: data.pos.x, y: data.pos.y, z: data.pos.z, duration: 2.5 });
 
-        // PLANET BUMI (Earth)
-        const earthGeo = new THREE.SphereGeometry(2, 32, 32);
-        const earthMat = new THREE.MeshPhongMaterial({ color: 0x2233ff, emissive: 0x112244, specular: 0x555555, shininess: 30 });
-        const earth = new THREE.Mesh(earthGeo, earthMat);
-        earth.position.set(30, 0, 0); // Jarak dari matahari
-        group.add(earth);
-        
-        // Earth Atmosphere Glow
-        const atmosGeo = new THREE.SphereGeometry(2.3, 32, 32);
-        const atmosMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending });
-        earth.add(new THREE.Mesh(atmosGeo, atmosMat));
+        // 2. Change Ambient Background
+        bg.style.backgroundImage = `url('${data.bg}')`;
+        bg.style.opacity = 0.4;
 
-        group.position.set(pos.x, pos.y, pos.z);
-        scene.add(group);
-        return { group, sun, earth };
-    }
-
-    // UFO CREATOR
-    function createUFO() {
-        const group = new THREE.Group();
-        // Body UFO (Piringan)
-        const bodyGeo = new THREE.CylinderGeometry(5, 5, 1, 32);
-        const bodyMat = new THREE.MeshPhongMaterial({ color: 0x666666, specular: 0x999999 });
-        group.add(new THREE.Mesh(bodyGeo, bodyMat));
-        // Cockpit UFO (Kubah)
-        const cockpitGeo = new THREE.SphereGeometry(2.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-        const cockpitMat = new THREE.MeshPhongMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 });
-        const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-        cockpit.position.y = 0.5;
-        group.add(cockpit);
-        // Neon Lights UFO
-        const lightGeo = new THREE.TorusGeometry(5, 0.2, 8, 32);
-        const lightMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, blending: THREE.AdditiveBlending });
-        const light = new THREE.Mesh(lightGeo, lightMat);
-        light.rotation.x = Math.PI / 2;
-        group.add(light);
-
-        group.position.set(-200, 20, -50); // Start position
-        return group;
-    }
-
-    // NAVIGATION SYSTEM
-    function travelTo(target) {
-        const targetPos = (target === 'sol') ? systems.sol.group.position : systems[target].position;
-        const panel = document.getElementById('infoPanel');
-        const nameDisplay = document.getElementById('galaxy-name');
-        const descDisplay = document.getElementById('galaxy-desc');
-        const accentColor = target === 'blue' ? '#00f3ff' : (target === 'red' ? '#ff4d4d' : (target === 'yellow' ? '#ffcc00' : '#ffaa00'));
-
-        // Update UI
-        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`btn-${target}`).classList.add('active');
-        nameDisplay.innerText = target === 'blue' ? "Cyan Galaxy" : (target === 'red' ? "Crimson Sector" : (target === 'yellow' ? "Amber Cluster" : "Sol System"));
-        nameDisplay.style.color = accentColor;
-        nameDisplay.style.textShadow = `0 0 20px ${accentColor}`;
-        descDisplay.innerText = target === 'sol' ? "Tata Surya Kita. Planet Bumi terdeteksi." : "Central Archive. CLASSIFIED Data.";
-        panel.classList.add('visible');
-
-        // ANIMASI CAMERA ZOOM
-        gsap.to(camera.position, {
-            x: targetPos.x,
-            y: targetPos.y + 10,
-            z: targetPos.z + 50,
-            duration: 2.5,
-            ease: "expo.inOut",
-            onUpdate: () => controls.update() // Update OrbitControls target
+        // 3. Update Music HUD
+        document.getElementById('current-galaxy').innerText = data.name;
+        document.getElementById('artist-tag').innerText = data.tag;
+        const list = document.getElementById('playlist');
+        list.innerHTML = "";
+        data.tracks.forEach(t => {
+            list.innerHTML += `<li>▶ ${t}</li>`;
         });
-        gsap.to(controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 2.5, ease: "expo.inOut" });
+        hud.classList.add('active');
     }
 
-    // GAME LOOP (ANIMATION)
     function animate() {
         requestAnimationFrame(animate);
-        const delta = clock.getDelta();
-        const elapsedTime = clock.getElapsedTime();
-
-        controls.update(); // Wajib buat damping OrbitControls
-
-        // Putar pelan semua galaksi
-        systems.blue.rotation.y += 0.0008;
-        systems.red.rotation.y += 0.0006;
-        systems.yellow.rotation.y += 0.001;
-
-        // Animate Tata Surya
-        systems.sol.sun.rotation.y += 0.002;
-        systems.sol.earth.rotation.y += 0.01;
-        // Orbit Bumi
-        const earthOrbitRadius = 30;
-        systems.sol.earth.position.x = Math.cos(elapsedTime * 0.5) * earthOrbitRadius;
-        systems.sol.earth.position.z = Math.sin(elapsedTime * 0.5) * earthOrbitRadius;
-
-        // Animate Flying UFO (Randow Way)
-        ufo.position.x = Math.sin(elapsedTime * 0.2) * 200 - 50;
-        ufo.position.z = Math.cos(elapsedTime * 0.2) * 150 - 50;
-        ufo.rotation.y += 0.02; // Rotate UFO
-        // Kedip-kedip neon UFO
-        ufo.children[2].material.opacity = Math.sin(elapsedTime * 5) * 0.5 + 0.5;
-
+        controls.update();
+        systems.oor.rotation.y += 0.001;
+        systems.indie.rotation.y += 0.0015;
         renderer.render(scene, camera);
     }
 
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
     init();
 </script>
-
 </body>
 </html>
