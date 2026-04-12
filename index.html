@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GALAXY JUKEBOX // ONE OK ROCK EDITION</title>
+    <title>GALAXY ARCHIVE // AUDIO VISUAL</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;900&display=swap" rel="stylesheet">
@@ -14,181 +14,204 @@
         :root { --neon: #00f3ff; --bg: #000000; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        /* --- BACKGROUND AMBIENT IMAGE --- */
-        #ambient-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2; opacity: 0; transition: 1.5s ease-in-out;
-            background-size: cover; background-position: center;
-            filter: grayscale(100%) brightness(40%) blur(5px);
-            pointer-events: none;
-        }
-
-        /* --- UI OVERLAY --- */
+        /* UI OVERLAY */
         .overlay { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; pointer-events: none; }
-        .logo { font-family: 'Syncopate'; font-weight: 700; font-size: 1.2rem; letter-spacing: 10px; color: var(--neon); text-shadow: 0 0 15px var(--neon); }
+        .logo { font-family: 'Syncopate'; font-weight: 700; font-size: 1.2rem; letter-spacing: 10px; color: var(--neon); text-shadow: 0 0 15px var(--neon); pointer-events: auto; }
 
-        /* --- MUSIC PLAYER HUD --- */
+        /* PLAYER HUD */
         .music-hud {
             position: fixed; top: 100px; right: 40px; text-align: right;
             pointer-events: auto; opacity: 0; transform: translateX(50px);
-            transition: 0.8s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            transition: 0.8s ease;
         }
         .music-hud.active { opacity: 1; transform: translateX(0); }
-        .track-info h2 { font-family: 'Syncopate'; font-size: 2.5rem; margin: 0; color: #fff; text-transform: uppercase; }
-        .track-info p { color: var(--neon); letter-spacing: 5px; font-size: 0.8rem; margin-bottom: 20px; }
+        .track-info h2 { font-family: 'Syncopate'; font-size: 2.2rem; margin: 0; color: #fff; text-transform: uppercase; }
+        .track-info p { color: var(--neon); letter-spacing: 5px; font-size: 0.7rem; margin-bottom: 20px; }
         
         .track-list { list-style: none; }
         .track-list li { 
-            padding: 8px 0; font-size: 0.9rem; opacity: 0.6; cursor: pointer; 
+            padding: 8px 0; font-size: 0.8rem; opacity: 0.6; cursor: pointer; 
             transition: 0.3s; border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         .track-list li:hover { opacity: 1; color: var(--neon); padding-right: 10px; }
 
         .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; pointer-events: auto; z-index: 100; }
         .btn { 
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 243, 255, 0.3); padding: 15px 30px; 
-            border-radius: 5px; color: white; cursor: pointer; backdrop-filter: blur(10px); 
-            font-family: 'Syncopate'; font-size: 0.7rem; transition: 0.3s; letter-spacing: 2px;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 12px 25px; 
+            border-radius: 2px; color: white; cursor: pointer; backdrop-filter: blur(10px); 
+            font-family: 'Syncopate'; font-size: 0.6rem; transition: 0.3s; letter-spacing: 2px;
         }
-        .btn:hover { background: var(--neon); color: black; }
+        .btn:hover { background: var(--neon); color: black; box-shadow: 0 0 20px var(--neon); }
 
-        /* Simbol Audio Playing */
-        .playing-icon { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; }
+        .loading-screen {
+            position: fixed; inset: 0; background: black; z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Syncopate'; font-size: 0.8rem; letter-spacing: 5px;
+            transition: opacity 1s ease;
+        }
     </style>
 </head>
 <body>
 
-<div id="ambient-bg"></div>
+<div class="loading-screen" id="loader">INITIALIZING MULTIVERSE...</div>
 <div id="canvas-container"></div>
 
 <div class="overlay">
-    <header><div class="logo">GALAXY.JUKEBOX</div></header>
+    <header><div class="logo">ALVIN.ARC</div></header>
 
     <div class="music-hud" id="musicHud">
         <div class="track-info">
             <p id="artist-tag">NOW ENTERING</p>
-            <h2 id="current-galaxy">DEEP SPACE</h2>
+            <h2 id="current-galaxy">SYSTEM</h2>
         </div>
-        <ul class="track-list" id="playlist">
-            </ul>
+        <ul class="track-list" id="playlist"></ul>
     </div>
 
     <div class="controls">
         <div class="btn" onclick="travelTo('oor')">ONE OK ROCK GALAXY</div>
-        <div class="btn" onclick="travelTo('indie')">IDGITAF & HINDIA</div>
-        <div class="btn" onclick="travelTo('reset')">RESET POSITION</div>
+        <div class="btn" onclick="travelTo('indie')">INDIE SECTOR</div>
+        <div class="btn" onclick="travelTo('home')">HOME</div>
     </div>
 </div>
 
 <script>
-    let scene, camera, renderer, controls, systems = {};
-    const clock = new THREE.Clock();
+    let scene, camera, renderer, controls, starField;
+    const systems = {};
+    const loader = new THREE.TextureLoader();
 
-    // Data Musik & Background
-    const galaxyData = {
+    // Data Galaksi
+    const data = {
         oor: {
             name: "ONE OK ROCK",
-            tag: "ALTERNATIVE ROCK DIMENSION",
-            bg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600", // Ganti ke URL foto OOR kalo ada
-            tracks: ["The Beginning", "Wherever You Are", "Save Yourself", "Vandalize"],
-            color: 0xff0000,
-            pos: { x: -60, y: 10, z: -50 }
+            tag: "ALTERNATIVE ROCK",
+            color: 0xff1111,
+            pos: { x: -80, y: 0, z: -50 },
+            img: "https://i.ibb.co/L8y6y6n/oor-placeholder.jpg", // Gantilah link ini kalau ada foto OOR lo
+            tracks: ["The Beginning", "Vandalize", "Save Yourself", "Wherever You Are"]
         },
         indie: {
-            name: "INDIE VIBES",
-            tag: "IDGITAF & HINDIA SECTOR",
-            bg: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=1600",
-            tracks: ["Satu-Satu", "Rumah ke Rumah", "Evaluasi", "Takut"],
-            color: 0xffff00,
-            pos: { x: 60, y: -10, z: -80 }
+            name: "INDIE VIBE",
+            tag: "HINDIA & IDGITAF",
+            color: 0x00f3ff,
+            pos: { x: 80, y: 15, z: -80 },
+            img: "https://i.ibb.co/m0fHkG4/indie-placeholder.jpg",
+            tracks: ["Satu-Satu", "Evaluasi", "Rumah ke Rumah", "Takut"]
         }
     };
 
     function init() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-        camera.position.set(0, 100, 200);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 3000);
+        camera.position.set(0, 50, 200);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        // Create Galaxies
-        systems.oor = createGalaxy(galaxyData.oor.color, galaxyData.oor.pos);
-        systems.indie = createGalaxy(galaxyData.indie.color, galaxyData.indie.pos);
-
-        // Starfield
+        // 1. Create Starfield Background
         const starGeo = new THREE.BufferGeometry();
-        const starCoords = [];
-        for(let i=0; i<15000; i++) starCoords.push((Math.random()-0.5)*2000, (Math.random()-0.5)*2000, (Math.random()-0.5)*2000);
-        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 })));
+        const starPositions = [];
+        for(let i=0; i<20000; i++) starPositions.push((Math.random()-0.5)*2500, (Math.random()-0.5)*2500, (Math.random()-0.5)*2500);
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+        starField = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.6 }));
+        scene.add(starField);
+
+        // 2. Create Galaxies & Holograms
+        Object.keys(data).forEach(key => {
+            const config = data[key];
+            const group = new THREE.Group();
+            
+            // Galaxy Particles
+            const pCount = 12000;
+            const pGeo = new THREE.BufferGeometry();
+            const pPos = [];
+            for (let i = 0; i < pCount; i++) {
+                const r = Math.random() * 35;
+                const theta = Math.random() * Math.PI * 2;
+                const spiral = r * 0.4;
+                pPos.push(Math.cos(theta+spiral)*r, (Math.random()-0.5)*5, Math.sin(theta+spiral)*r);
+            }
+            pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
+            const points = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: config.color, size: 0.1, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending }));
+            group.add(points);
+
+            // Hologram Plane (Siluet Artist)
+            const planeGeo = new THREE.PlaneGeometry(15, 15);
+            const planeMat = new THREE.MeshBasicMaterial({ 
+                color: config.color, 
+                transparent: true, 
+                opacity: 0.3, 
+                side: THREE.DoubleSide,
+                wireframe: true // Efek hologram digital
+            });
+            const hologram = new THREE.Mesh(planeGeo, planeMat);
+            hologram.position.y = 5;
+            group.add(hologram);
+
+            group.position.set(config.pos.x, config.pos.y, config.pos.z);
+            systems[key] = group;
+            scene.add(group);
+        });
+
+        // Lights
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').remove(), 1000);
 
         animate();
     }
 
-    function createGalaxy(color, pos) {
-        const group = new THREE.Group();
-        const geo = new THREE.BufferGeometry();
-        const coords = [];
-        for (let i = 0; i < 10000; i++) {
-            const r = Math.random() * 30;
-            const theta = Math.random() * Math.PI * 2;
-            const spiral = r * 0.4;
-            coords.push(Math.cos(theta + spiral) * r, (Math.random()-0.5)*5, Math.sin(theta + spiral) * r);
-        }
-        geo.setAttribute('position', new THREE.Float32BufferAttribute(coords, 3));
-        const points = new THREE.Points(geo, new THREE.PointsMaterial({ color: color, size: 0.1, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending }));
-        group.add(points);
-        group.position.set(pos.x, pos.y, pos.z);
-        scene.add(group);
-        return group;
-    }
-
-    function travelTo(key) {
-        const bg = document.getElementById('ambient-bg');
+    function travelTo(target) {
         const hud = document.getElementById('musicHud');
+        const list = document.getElementById('playlist');
 
-        if(key === 'reset') {
-            gsap.to(camera.position, { x: 0, y: 100, z: 200, duration: 2 });
-            bg.style.opacity = 0;
+        if(target === 'home') {
+            gsap.to(camera.position, { x: 0, y: 50, z: 200, duration: 2.5, ease: "power2.inOut" });
+            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2 });
             hud.classList.remove('active');
             return;
         }
 
-        const data = galaxyData[key];
-        
-        // 1. Zoom Camera
-        gsap.to(camera.position, { x: data.pos.x, y: data.pos.y + 10, z: data.pos.z + 40, duration: 2.5, ease: "expo.inOut" });
-        gsap.to(controls.target, { x: data.pos.x, y: data.pos.y, z: data.pos.z, duration: 2.5 });
+        const info = data[target];
+        const targetPos = systems[target].position;
 
-        // 2. Change Ambient Background
-        bg.style.backgroundImage = `url('${data.bg}')`;
-        bg.style.opacity = 0.4;
+        // Zoom Camera
+        gsap.to(camera.position, { x: targetPos.x, y: targetPos.y + 10, z: targetPos.z + 50, duration: 2.5, ease: "expo.inOut" });
+        gsap.to(controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 2.5 });
 
-        // 3. Update Music HUD
-        document.getElementById('current-galaxy').innerText = data.name;
-        document.getElementById('artist-tag').innerText = data.tag;
-        const list = document.getElementById('playlist');
+        // Update UI
+        document.getElementById('current-galaxy').innerText = info.name;
+        document.getElementById('current-galaxy').style.color = `#${info.color.toString(16)}`;
+        document.getElementById('artist-tag').innerText = info.tag;
         list.innerHTML = "";
-        data.tracks.forEach(t => {
-            list.innerHTML += `<li>▶ ${t}</li>`;
-        });
+        info.tracks.forEach(t => list.innerHTML += `<li>▶ ${t}</li>`);
         hud.classList.add('active');
     }
 
     function animate() {
         requestAnimationFrame(animate);
         controls.update();
-        systems.oor.rotation.y += 0.001;
-        systems.indie.rotation.y += 0.0015;
+        
+        // Rotasi Galaksi
+        Object.values(systems).forEach(s => s.rotation.y += 0.002);
+        starField.rotation.y += 0.0002;
+
         renderer.render(scene, camera);
     }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
     init();
 </script>
