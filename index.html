@@ -3,186 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DETOX-X // THE SINGULARITY</title>
-    
+    <title>SINGULARITY // CORE OPS V.PS2</title>
     <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #ff0000; --glow: rgba(255, 0, 0, 0.6); }
+        :root { --accent: #ff0000; --glow: rgba(255, 0, 0, 0.4); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        body { background: #000; color: #fff; font-family: 'Syncopate', sans-serif; overflow: hidden; height: 100vh; }
         
-        /* PRELOADER LEVEL DEWA */
-        #loader {
-            position: fixed; inset: 0; z-index: 1000; background: #000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .load-bar { width: 200px; height: 2px; background: #222; margin-top: 20px; position: relative; }
-        .load-progress { position: absolute; height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-
-        #canvas-container { position: fixed; inset: 0; z-index: 1; filter: contrast(1.2) brightness(0.8); }
-
-        /* LYRIC ENGINE V3 (SCROLL STYLE) */
-        .lyrics-wrapper {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; height: 300px; z-index: 10; pointer-events: none;
-            display: flex; flex-direction: column; align-items: center;
-            mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
-        }
-        #lyric-track { transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1); text-align: center; }
-        .lyric-line {
-            font-family: 'Syncopate'; font-size: clamp(0.8rem, 3vw, 2rem);
-            margin: 20px 0; opacity: 0.2; transition: 0.5s; text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .lyric-line.active { opacity: 1; color: #fff; text-shadow: 0 0 20px var(--accent); transform: scale(1.1); }
-
-        .hud { position: fixed; bottom: 40px; left: 40px; z-index: 20; border-left: 2px solid var(--accent); padding-left: 20px; }
-        .hud h3 { font-family: 'Syncopate'; font-size: 0.7rem; color: var(--accent); letter-spacing: 5px; }
+        /* UI OVERLAY */
+        #ui { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); transition: 0.5s; backdrop-filter: blur(5px); }
+        #score { position: fixed; top: 20px; left: 20px; font-size: 1.2rem; color: #fff; text-shadow: 0 0 10px var(--accent); z-index: 50; display: none; }
+        
+        button { background: none; border: 2px solid var(--accent); color: var(--accent); padding: 15px 40px; font-family: 'Syncopate'; cursor: pointer; transition: 0.3s; letter-spacing: 5px; text-transform: uppercase; }
+        button:hover { background: var(--accent); color: #000; box-shadow: 0 0 30px var(--accent); }
+        
+        #game-over { position: fixed; inset: 0; background: rgba(255,0,0,0.2); display: none; z-index: 101; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        
+        /* Loading Bar Estetik */
+        .load-bar { width: 200px; height: 1px; background: #333; margin-top: 20px; overflow: hidden; position: relative; }
+        .load-progress { position: absolute; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); width: 0%; transition: 0.2s; }
     </style>
 </head>
 <body>
 
-<div id="loader">
-    <h1 style="font-family:'Syncopate'; font-size:0.8rem; letter-spacing:10px;">INITIALIZING ARCHIVE</h1>
-    <div class="load-bar"><div class="load-progress" id="bar"></div></div>
+<div id="score">SCORE: 000</div>
+
+<div id="ui">
+    <h1 style="margin-bottom: 20px; letter-spacing: 15px; font-size: 2.5rem; text-shadow: 0 0 20px var(--accent);">SINGULARITY</h1>
+    <p style="margin-bottom: 40px; font-size: 0.65rem; opacity: 0.5; letter-spacing: 3px;">DEPLOY CORE PROTOCOL: [A] [D] OR [<-] [->]</p>
+    <button id="startBtn" onclick="startGame()" style="display:none;">INITIALIZE CORE</button>
+    <div class="load-bar" id="loadBar"><div class="load-progress" id="bar"></div></div>
 </div>
 
-<div id="canvas-container"></div>
-
-<div class="lyrics-wrapper">
-    <div id="lyric-track"></div>
+<div id="game-over">
+    <h1 style="font-size: 3rem; margin-bottom: 20px; color:#fff; text-shadow:0 0 20px var(--accent);">CORE BREACH</h1>
+    <button onclick="location.reload()">REBOOT SYSTEM</button>
 </div>
 
-<div class="hud">
-    <p style="font-size: 0.5rem; opacity: 0.4; margin-bottom: 5px;">PROTOCOL: ONE OK ROCK</p>
-    <h3 id="song-title">CORE STANDBY</h3>
-</div>
-
-<audio id="audio-player"></audio>
+<audio id="bgm" src="chaosmyth.mp3" loop preload="auto"></audio>
 
 <script>
-    // FULL LIRIK TANPA POTONGAN
-    const setlist = [
-        {
-            title: "C.H.A.O.S.M.Y.T.H",
-            file: "chaosmyth.mp3",
-            lyrics: [
-                "Aikawarazu ano koro ni hanashita", "Yume wo boku wa oi tsuzukete ru yo", "Mou kotoshi kara isogashiku naru yona?", "Demo kawarazu kono basho wa aru kara",
-                "So everybody ever be buddies", "Days we grew up are days we will treasure (show)", "Everybody show is begining curtain has risen", "Make your own storyline",
-                "Dream as if you will live forever", "And live as if you'll die today", "Fuzake ai tawaimonai", "Kudaranai hanashi wo shite wa", "Nakiwarai nagusame ai",
-                "So owaranai uta ima utau yo", "Dream as if you will live forever", "And live as if you'll die today", "Waru-sa ya baka mo shita ne yoku okorareta ne",
-                "Tada tanoshikute sonna hibi ga zutto", "Tsuzuku to omotteta", "Kedo kizukeba otona ni nattete", "Sore to tomoni yume mo dekaku natte itte", "Sorezore ga eranda michi e",
-                "We have to carry on", "Our lives are going on", "Demo kawarazu ano bashou wa aru kara", "So everybody ever be buddies", "Days we grew up are days We will treasure (show)",
-                "Everybody show is begining curtain has risen", "Make your own storyline", "Dream as if you will live forever", "And live as if you'll die today", "Fuzake ai tawaimonai",
-                "Kudaranai hanashi wo shite wa", "Nakiwarai nagusame ai", "So owaranai uta ima utau yo", "Dream as if you will live forever", "And live as if you'll die today",
-                "We all, we all", "Have unforgettable and precious treasure", "It lasts forever, it lasts forever", "Toki ga tachi oite itte mo", "Kakegae no nai takaromo no wa",
-                "Me ni mienu katachi janai", "Taisetsuna memory", "Kore kara saki mo zutto isshou zutto...", "So everybody ever be buddies", "Days we grew up are days we will treasure (show)",
-                "Everybody show is beginning curtain has risen", "Make your own storyline", "Dream as if you will live forever", "And live as if you'll die today", "Fuzake ai tawaimonai",
-                "Kudaranai hanashi wo shite wa", "Nakiwarai nagusame ai", "So owaranai uta ima utau yo", "Dream as if you will live forever", "And live as if you'll die today"
-            ]
-        },
-        {
-            title: "NOBODY'S HOME",
-            file: "nobodyhomes.mp3",
-            lyrics: [
-                "How are you doing?", "Sonna fuu ni ieru no ni mo jikan ga kakatta ne?", "Itsudatte koko dake wa nukumori ya yasashi sa ga", "Boku wo tsutsunde kureteta basho de?",
-                "Kedo boku wa nando mo uragitte kita ne?", "I just say kokoro kara I'm sorry", "Ima yatto kizuita yo", "Nobody's home yeah", "Nobody's home yeah",
-                "Nanimokamo wo sutete tobidashita ano hi", "Omoi daseba boku no senaka wo", "Ano toki mo tsuyoku oshite kureteta'n da ne", "Kizukeba barabara ni natteta'n da",
-                "Dou suru koto mo dekinakute tada kuyashikute?", "Motometeta oya no yume hoshikatta boku no yume", "Majiwaru koto wa nakatta genjitsu", "Kedo ima ieru koto ga aru no",
-                "Hanarete mo yuraganai mon wa aru!!", "Nobody's home yeah", "Nobody's home yeah", "Tatoe katachi ga kuzurete nakunatte mo", "Me ni wa mienai mono de kanarazu",
-                "Bokura ikiru kagiri tsunagatte iru kara", "Nobody's home yeah", "Nobody's home yeah", "Hontou ni meiwaku bakari kakete kita kara", "Itsuka kanarazu koete kanarazu",
-                "Boku no misetai keshiki wo miseru kara", "Nobody's home yeah", "Nobody's home yeah", "Kokoro kara aishiteiru yo arigatou"
-            ]
-        }
-    ];
+    let scene, camera, renderer, player, grid, obstacles = [], score = 0, isGaming = false;
+    let spawnRate = 900;
+    let gameSpeed = 1.3;
+    const audio = document.getElementById('bgm');
+    const startBtn = document.getElementById('startBtn');
+    const loadBar = document.getElementById('loadBar');
+    const bar = document.getElementById('bar');
 
-    let currentTrackIdx = 0;
-    const audio = document.getElementById('audio-player');
-    const lyricTrack = document.getElementById('lyric-track');
-
-    // MOCK LOADING SYSTEM
+    // MOCK LOADING SYSTEM (BIAR AFDOL)
     let progress = 0;
     const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        document.getElementById('bar').style.width = Math.min(progress, 100) + "%";
+        progress += Math.random() * 20;
+        bar.style.width = Math.min(progress, 100) + "%";
         if(progress >= 100) {
             clearInterval(interval);
-            gsap.to("#loader", { y: "-100%", duration: 1.2, ease: "expo.inOut", onComplete: () => {
-                init3D();
-                startEngine();
-            }});
+            loadBar.style.display = 'none';
+            startBtn.style.display = 'block';
         }
-    }, 200);
+    }, 250);
 
-    function startEngine() {
-        const track = setlist[currentTrackIdx];
-        audio.src = track.file;
-        document.getElementById('song-title').innerText = track.title;
+    function init() {
+        // 1. SETUP SCENE & CAMERA (TINGKAT DEWA)
+        scene = new THREE.Scene();
+        // Trik PS2: Kabut biar estetik dan rintangan muncul halus
+        scene.fog = new THREE.FogExp2(0x000000, 0.015);
         
-        // Build Lyric Elements
-        lyricTrack.innerHTML = '';
-        track.lyrics.forEach(text => {
-            const div = document.createElement('div');
-            div.className = 'lyric-line';
-            div.innerText = text;
-            lyricTrack.appendChild(div);
-        });
-
-        audio.play();
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
         
-        // SYNC LOGIC (Sistem Interval per 4.5 detik untuk lirik panjang)
-        let lIdx = 0;
-        const lines = document.querySelectorAll('.lyric-line');
-        
-        const syncLyrics = setInterval(() => {
-            if(lIdx < lines.length) {
-                lines.forEach(l => l.classList.remove('active'));
-                lines[lIdx].classList.add('active');
-                const offset = lIdx * -60; // Geser lirik ke atas
-                lyricTrack.style.transform = `translateY(${offset}px)`;
-                lIdx++;
-            }
-        }, 4800);
-
-        audio.onended = () => {
-            clearInterval(syncLyrics);
-            currentTrackIdx++;
-            startEngine();
-        };
-    }
-
-    function init3D() {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Biar gak terlalu berat
+        document.body.appendChild(renderer.domElement);
 
-        // GRID VISUAL (Dewa Level)
-        const grid = new THREE.GridHelper(200, 50, 0xff0000, 0x220000);
-        grid.position.y = -20;
+        // 2. GRID VISUAL (Dewa Level)
+        grid = new THREE.GridHelper(500, 100, 0xff0000, 0x330000);
+        grid.position.y = -1;
+        grid.position.z = -200;
         scene.add(grid);
 
-        const geo = new THREE.IcosahedronGeometry(10, 1);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        const core = new THREE.Mesh(geo, mat);
-        scene.add(core);
+        // 3. LIGHTING (Kunci Grafik PS2)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const pointLight = new THREE.PointLight(0xff0000, 2, 100);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
 
-        camera.position.z = 50;
-        camera.position.y = 5;
+        // 4. PLAYER SHIP (SOLID LOW-POLY)
+        const playerGeo = new THREE.ConeGeometry(0.8, 2.5, 4);
+        const playerMat = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff, 
+            emissive: 0x222222,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        player = new THREE.Mesh(playerGeo, playerMat);
+        player.rotation.x = Math.PI / 2;
+        player.position.y = 0.5;
+        scene.add(player);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            core.rotation.y += 0.01;
-            core.rotation.z += 0.005;
-            renderer.render(scene, camera);
-        }
+        camera.position.set(0, 4, 10);
+        camera.lookAt(0, 1, -10);
+
+        // 5. CONTROLS (GSAP SMOOTH)
+        const move = (targetX) => {
+            gsap.to(player.position, {x: targetX, duration: 0.25, ease: "power2.out"});
+            gsap.to(player.rotation, {z: (targetX / -2) * 0.4, duration: 0.2}); // Miringin kapal dikit
+            gsap.to(pointLight.position, {x: targetX, duration: 0.25});
+        };
+
+        window.addEventListener('keydown', (e) => {
+            if(!isGaming) return;
+            if(e.key === 'a' || e.key === 'ArrowLeft') move(-2.5);
+            if(e.key === 'd' || e.key === 'ArrowRight') move(2.5);
+        });
+        
+        // Reset rotation pas tombol dilepas
+        window.addEventListener('keyup', (e) => {
+            if(!isGaming) return;
+            gsap.to(player.rotation, {z: 0, duration: 0.1});
+        });
+    }
+
+    function spawnObstacle() {
+        if(!isGaming) return;
+        
+        // Tipe Rintangan: Balok Solid
+        const geo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+        const mat = new THREE.MeshPhongMaterial({ 
+            color: 0xee0000, 
+            shininess: 30,
+            specular: 0x555555
+        });
+        const obs = new THREE.Mesh(geo, mat);
+        
+        obs.position.set(Math.random() > 0.5 ? 2.5 : -2.5, 0.5, -150);
+        obs.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0); // Rotasi acak
+        scene.add(obs);
+        obstacles.push(obs);
+        
+        // Dynamic Difficulty
+        if(spawnRate > 500) spawnRate -= 5;
+        gameSpeed += 0.005;
+
+        setTimeout(spawnObstacle, spawnRate);
+    }
+
+    function startGame() {
+        isGaming = true;
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('score').style.display = 'block';
+        audio.play().catch(e => console.log("Check audio file!"));
+        
+        init();
+        spawnObstacle();
         animate();
     }
+
+    function animate() {
+        if(!isGaming) return;
+        requestAnimationFrame(animate);
+
+        // Gerakan Obstacles & Grid
+        grid.position.z += gameSpeed;
+        if(grid.position.z > 0) grid.position.z = -200; // Reset Grid loop
+
+        obstacles.forEach((obs, index) => {
+            obs.position.z += gameSpeed;
+            obs.rotation.y += 0.02; // Muter pelan baloknya
+
+            // Collision Detection (PS2 Pro)
+            if(obs.position.z > player.position.z - 1.5 && obs.position.z < player.position.z + 1.5) {
+                if(Math.abs(obs.position.x - player.position.x) < 1.2) {
+                    endGame();
+                }
+            }
+
+            // Clean up
+            if(obs.position.z > 20) {
+                scene.remove(obs);
+                obstacles.splice(index, 1);
+                score += 10;
+                document.getElementById('score').innerText = `SCORE: ${String(score).padStart(3, '0')}`;
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    function endGame() {
+        isGaming = false;
+        audio.pause();
+        // Efek mati gempa dikit
+        gsap.to(camera.position, {y: 10, z: 20, duration: 1, ease: "elastic.out"});
+        
+        setTimeout(() => {
+            document.getElementById('game-over').style.display = 'flex';
+        }, 800);
+    }
+
+    window.addEventListener('resize', () => {
+        if(camera) {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    });
 </script>
 </body>
 </html>
