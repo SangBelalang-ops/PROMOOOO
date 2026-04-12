@@ -1,52 +1,57 @@
-<!DOCTYPE html><html lang="en"><head><style>body{margin:0;overflow:hidden;background:#050505;font-family:sans-serif;}</style></head><body>
-<div style="position:fixed;top:40px;left:40px;color:#ff0000;letter-spacing:10px;z-index:10;font-weight:900;opacity:0.5">DETOX SHOWROOM</div>
+<!DOCTYPE html><html lang="en"><head><style>body{margin:0;overflow:hidden;background:#010101;font-family:sans-serif;}</style></head><body>
+<div style="position:fixed;top:40px;right:40px;color:#ff0000;letter-spacing:10px;font-size:0.8rem;opacity:0.6;font-weight:900">DETOX-X CONCEPT</div>
 <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
 <script>
-const s=new THREE.Scene(),c=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
+const s=new THREE.Scene(),c=new THREE.PerspectiveCamera(50,window.innerWidth/window.innerHeight,0.1,1000);
 const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(window.innerWidth,window.innerHeight);
-r.toneMapping=THREE.ReinhardToneMapping;r.toneMappingExposure=2;document.body.appendChild(r.domElement);
-s.fog=new THREE.Fog(0x050505,10,50);
+r.toneMapping=THREE.ReinhardToneMapping;r.toneMappingExposure=3;r.setPixelRatio(window.devicePixelRatio);document.body.appendChild(r.domElement);
+s.fog=new THREE.Fog(0x010101,10,30);
 
 // CAR GROUP (Lekukan AAA)
 const car=new THREE.Group();
-const bodyM=new THREE.MeshStandardMaterial({color:0x111111,metalness:1,roughness:0.05}); // Deep Black Gloss
-const glassM=new THREE.MeshStandardMaterial({color:0x00f3ff,transparent:true,opacity:0.4,metalness:1});
+const bodyM=new THREE.MeshStandardMaterial({color:0x111111,metalness:1,roughness:0.02}); // Deep Metallic Black
+const glassM=new THREE.MeshStandardMaterial({color:0x00f3ff,transparent:true,opacity:0.4,metalness:1,roughness:0});
+const headM=new THREE.MeshBasicMaterial({color:0xff0000}); // Red Headlights
 
-const chassis=new THREE.Mesh(new THREE.BoxGeometry(4,0.8,2),bodyM);chassis.position.y=0.6;
-const cabin=new THREE.Mesh(new THREE.BoxGeometry(2,0.6,1.8),glassM);cabin.position.set(-0.2,1.2,0);
-const wheelG=new THREE.CylinderGeometry(0.4,0.4,0.3,32);const wheelM=new THREE.MeshStandardMaterial({color:0x000});
+// Advanced Geometry (Lekukan Supercar)
+const mainBody=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1,5,32,1),bodyM);mainBody.rotation.z=Math.PI/2;
+const roof=new THREE.Mesh(new THREE.TorusGeometry(1.8,0.5,16,100,Math.PI),bodyM);roof.rotation.set(Math.PI/2,0,-Math.PI/2);roof.scale.set(1.5,1,1);roof.position.y=0.2;
+const windscreen=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.4,1.8,32,1,true,Math.PI,Math.PI/2),glassM);windscreen.rotation.z=Math.PI/2;windscreen.position.set(-0.8,0.5,0);
+const hL=new THREE.Mesh(new THREE.SphereGeometry(0.2,16,16),headM);hL.position.set(-2.5,0.2,0.6);
+const hR=hL.clone();hR.position.z=-0.6;
+
+// Velg & Ban AAA
+const tireG=new THREE.CylinderGeometry(0.5,0.5,0.3,32);const tireM=new THREE.MeshStandardMaterial({color:0x000,roughness:0.8});
+const rimG=new THREE.TorusGeometry(0.35,0.05,16,32);const rimM=new THREE.MeshStandardMaterial({color:0xff0000,metalness:1});
 for(let i=0;i<4;i++){
-    const w=new THREE.Mesh(wheelG,wheelM);w.rotation.x=Math.PI/2;
-    w.position.set(i<2?1.2:-1.2,0.4,i%2?1:-1);car.add(w);
-}car.add(chassis,cabin);s.add(car);
+    const w=new THREE.Group();
+    const t=new THREE.Mesh(tireG,tireM);t.rotation.x=Math.PI/2;w.add(t);
+    const r=new THREE.Mesh(rimG,rimM);r.rotation.y=Math.PI/2;w.add(r);
+    w.position.set(i<2?1.5:-1.5,0,i%2?1.2:-1.2);car.add(w);
+}car.add(mainBody,roof,windscreen,hL,hR);car.position.y=0.5;s.add(car);
 
-// WORKSHOP FLOOR (Mirror Effect)
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x080808,roughness:0.1,metalness:0.5}));
+// LANTAI CERMIN AAA
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshStandardMaterial({color:0x050505,roughness:0.01,metalness:0.9}));
 floor.rotation.x=-Math.PI/2;s.add(floor);
 
-// AAA LIGHTING (Studio Setup)
+// AAA STUDIO LIGHTING
 const lights=[];
-const setupLight=(x,y,z,color,int)=>{
-    const l=new THREE.SpotLight(color,int);l.position.set(x,y,z);
-    l.castShadow=true;l.angle=Math.PI/4;l.penumbra=1;s.add(l);return l;
-};
-lights.push(setupLight(5,10,5,0xff0000,500)); // Red Accent
-lights.push(setupLight(-5,10,-5,0x00f3ff,500)); // Cyan Accent
-lights.push(setupLight(0,15,0,0xffffff,300)); // Top White
+lights.push(new THREE.PointLight(0xff0000,1000,30));lights[0].position.set(5,10,5);s.add(lights[0]);
+lights.push(new THREE.PointLight(0x00f3ff,800,30));lights[1].position.set(-5,10,-5);s.add(lights[1]);
+s.add(new THREE.AmbientLight(0x111111));
 
-c.position.set(8,4,8);c.lookAt(0,1,0);
+c.position.set(12,4,12);c.lookAt(0,1,0);
 
 function animate(t){
     requestAnimationFrame(animate);const time=t*0.001;
-    // Auto Rotation 360
-    car.rotation.y=time*0.5;
-    // Hovering Motion
-    car.position.y=Math.sin(time*2)*0.05;
-    // Camera Smoothing
-    c.position.x=8*Math.cos(time*0.2);c.position.z=8*Math.sin(time*0.2);c.lookAt(0,1,0);
-    // Flickering Lights
-    lights[0].intensity=500+Math.random()*100;
+    // 360 Rotation
+    car.rotation.y=time*0.3;
+    // Hover & Wobble
+    car.position.y=0.5+Math.sin(time*2)*0.03;car.rotation.z=Math.sin(time)*0.01;
+    // Camera Orbit
+    c.position.x=12*Math.cos(time*0.1);c.position.z=12*Math.sin(time*0.1);c.lookAt(0,1,0);
     r.render(s,c);
 }animate();
 window.onresize=()=>{c.aspect=window.innerWidth/window.innerHeight;c.updateProjectionMatrix();r.setSize(window.innerWidth,window.innerHeight)};
+// TITAN-100 SHOWROOM: DETOX-X EDITION. 
 </script></body></html>
