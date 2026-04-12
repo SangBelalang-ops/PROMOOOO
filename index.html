@@ -1,300 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE OOR'S // ARCHIVE-X</title>
+    <title>THE OOR'S // ARCHIVE-DETOX</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --accent: #00f3ff;
-            --bg: #000000;
-        }
-
+        :root { --accent: #ff0000; --neon: #00f3ff; --bg: #000000; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        #canvas-container { position: fixed; inset: 0; z-index: 1; }
+
+        /* STARTUP SHIELD */
+        #startup {
+            position: fixed; inset: 0; z-index: 999; background: black;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
+        }
+        #startup h2 { font-family: 'Syncopate'; letter-spacing: 10px; font-size: 1.2rem; color: var(--accent); margin-bottom: 10px; }
+        #startup p { font-size: 0.6rem; letter-spacing: 4px; opacity: 0.5; }
+
+        /* LYRICS VIEW */
+        .lyrics-container {
+            position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; width: 85%; pointer-events: none; z-index: 10;
+        }
+        #current-lyric {
+            font-family: 'Syncopate'; font-size: clamp(1rem, 4vw, 3rem);
+            font-weight: 700; text-transform: uppercase; line-height: 1.4;
+            text-shadow: 0 0 25px var(--accent); opacity: 0;
         }
 
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-        }
+        /* HUD UI */
+        .hud { position: fixed; z-index: 20; pointer-events: none; padding: 30px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .top-left { font-family: 'Syncopate'; font-size: 0.8rem; color: var(--neon); letter-spacing: 5px; }
+        .bottom-info { border-left: 2px solid var(--accent); padding-left: 20px; }
+        .bottom-info h3 { font-family: 'Syncopate'; font-size: 0.9rem; letter-spacing: 3px; color: var(--accent); }
+        
+        .nav-hint { position: fixed; bottom: 30px; right: 30px; font-size: 0.6rem; opacity: 0.3; letter-spacing: 2px; }
 
-        /* --- UI LAYER --- */
-        .overlay {
-            position: relative;
-            z-index: 10;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
-            pointer-events: none;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Syncopate', sans-serif;
-            font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: 10px;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
-
-        .main-content {
-            max-width: 800px;
-        }
-
-        .main-content h1 {
-            font-family: 'Syncopate', sans-serif;
-            font-size: clamp(3rem, 10vw, 8rem);
-            line-height: 0.9;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            pointer-events: auto;
-            cursor: default;
-        }
-
-        .glitch-text {
-            position: relative;
-            display: inline-block;
-        }
-
-        .main-content p {
-            font-size: 1rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            opacity: 0.6;
-            border-left: 2px solid var(--accent);
-            padding-left: 20px;
-        }
-
-        footer {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            opacity: 0.4;
-        }
-
-        /* --- AI CHAT INTERFACE (MINIMALIST) --- */
-        .ai-terminal {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            width: 300px;
-            pointer-events: auto;
-            z-index: 100;
-        }
-
-        .ai-input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            border-bottom: 1px solid var(--accent);
-            padding: 10px;
-            color: var(--accent);
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .ai-input:focus {
-            background: rgba(0, 243, 255, 0.1);
-        }
-
-        #ai-response {
-            font-size: 0.8rem;
-            margin-top: 10px;
-            line-height: 1.5;
-            color: #ccc;
-            min-height: 20px;
-        }
-
-        /* --- DECORATIONS --- */
-        .scanner-line {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 2px;
-            background: rgba(0, 243, 255, 0.2);
-            z-index: 5;
-            animation: scan 4s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
-        }
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
+        .scan { position: fixed; top: 0; width: 100%; height: 2px; background: rgba(255,0,0,0.1); z-index: 5; animation: scanline 8s linear infinite; }
     </style>
 </head>
 <body>
 
-<div class="scanner-line"></div>
-<div id="canvas-container"></div>
+<div class="scan"></div>
 
-<div class="overlay">
-    <header>
-        <div class="logo">ARCHIVE-X</div>
-        <div style="font-size: 0.7rem; opacity: 0.5;">STATUS: OPERATIONAL</div>
-    </header>
-
-    <div class="main-content">
-        <h1 id="hero-title">DIGITAL<br><span style="color: transparent; -webkit-text-stroke: 1px white;">SINGULARITY</span></h1>
-        <p>Beyond human perception. <br>Level Maksimal Experimental Interface.</p>
-    </div>
-
-    <div class="ai-terminal">
-        <input type="text" id="aiInput" class="ai-input" placeholder="COMMAND SYSTEM...">
-        <div id="ai-response"></div>
-    </div>
-
-    <footer>
-        <div>COORDINATES: 40.7128° N, 74.0060° W</div>
-        <div>EST. 2026 // SYSTEM V.9.0</div>
-    </footer>
+<div id="startup" onclick="startSystem()">
+    <h2>[ INITIALIZE DETOX ]</h2>
+    <p>CLICK TO DEPLOY ARCHIVE</p>
 </div>
 
+<div id="canvas-container"></div>
+
+<div class="hud">
+    <div class="top-left">ARCHIVE-X // SYNCED</div>
+    <div class="bottom-info">
+        <p style="font-size: 0.5rem; opacity: 0.5; margin-bottom: 5px;">CURRENT STREAM:</p>
+        <h3 id="song-title">STANDBY</h3>
+    </div>
+</div>
+
+<div class="lyrics-container">
+    <div id="current-lyric">...</div>
+</div>
+
+<div class="nav-hint">MOUSE: ROTATE // SCROLL: ZOOM</div>
+
+<audio id="audio-player"></audio>
+
 <script>
-    /**
-     * THREE.JS ENGINE - THE CORE VISUAL
-     */
-    let scene, camera, renderer, particles;
-    const mouse = { x: 0, y: 0 };
+    const setlist = [
+        {
+            title: "C.h.a.o.s.m.y.t.h.",
+            file: "chaosmyth.mp3", 
+            lyrics: [
+                "Dream as if you'll live forever",
+                "And live as if you'll die today",
+                "Fuzake ai tawaimonai",
+                "Kudaranai hanashi wo shite wa",
+                "Nakiwarai nagusame ai",
+                "So owaranai uta ima utau yo",
+                "Kakegae no nai takaromo no wa",
+                "Taisetsuna memory",
+                "Kore kara saki mo zutto isshou zutto"
+            ]
+        },
+        {
+            title: "Nobody's Home",
+            file: "nobodyhomes.mp3",
+            lyrics: [
+                "How are you doing?",
+                "Nobody's home yeah",
+                "Nanimokamo wo sutete tobidashita ano hi",
+                "Ima yatto kizuita yo",
+                "Hanarete mo yuraganai mon wa aru!!",
+                "Bokura ikiru kagiri tsunagatte iru kara",
+                "Itsuka kanarazu koete kanarazu",
+                "Kokoro kara aishiteiru yo arigatou"
+            ]
+        }
+    ];
 
-    function init() {
+    let scene, camera, renderer, controls, particles, sun, earth, ufo;
+    let currentTrack = 0;
+    let lyricIdx = 0;
+    const audio = document.getElementById('audio-player');
+    const lyricEl = document.getElementById('current-lyric');
+
+    function init3D() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
+        camera.position.set(0, 20, 100);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // CREATE NEURAL NETWORK PARTICLES
-        const geometry = new THREE.BufferGeometry();
-        const vertices = [];
-        const particleCount = 2000;
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
 
-        for (let i = 0; i < particleCount; i++) {
-            vertices.push(
-                Math.random() * 10 - 5,
-                Math.random() * 10 - 5,
-                Math.random() * 10 - 5
-            );
-        }
-
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        
-        const material = new THREE.PointsMaterial({
-            color: 0x00f3ff,
-            size: 0.02,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
-        });
-
-        particles = new THREE.Points(geometry, material);
+        // STARFIELD
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for(let i=0; i<10000; i++) starPos.push((Math.random()-0.5)*1500, (Math.random()-0.5)*1500, (Math.random()-0.5)*1500);
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        particles = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 }));
         scene.add(particles);
+
+        // SUN (MATAHARI)
+        const sunGeo = new THREE.SphereGeometry(15, 32, 32);
+        const sunMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+        sun = new THREE.Mesh(sunGeo, sunMat);
+        sun.position.set(-100, 0, -200);
+        scene.add(sun);
+
+        // EARTH (BUMI)
+        const earthGeo = new THREE.SphereGeometry(4, 32, 32);
+        const earthMat = new THREE.MeshPhongMaterial({ color: 0x2233ff, emissive: 0x112244 });
+        earth = new THREE.Mesh(earthGeo, earthMat);
+        scene.add(earth);
+
+        // UFO
+        const ufoGroup = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 1, 32), new THREE.MeshPhongMaterial({color: 0x888888}));
+        const dome = new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32, 0, 6, 0, 1.5), new THREE.MeshPhongMaterial({color: 0x00f3ff, transparent: true, opacity: 0.6}));
+        ufoGroup.add(body, dome);
+        ufo = ufoGroup;
+        scene.add(ufo);
+
+        scene.add(new THREE.PointLight(0xffffff, 2, 500));
+        scene.add(new THREE.AmbientLight(0x404040));
 
         animate();
     }
 
+    function startSystem() {
+        gsap.to("#startup", { opacity: 0, duration: 1.5, onComplete: () => {
+            document.getElementById('startup').style.display = 'none';
+            init3D();
+            playTrack();
+        }});
+    }
+
+    function playTrack() {
+        if(currentTrack >= setlist.length) currentTrack = 0;
+        const data = setlist[currentTrack];
+        
+        audio.src = data.file;
+        document.getElementById('song-title').innerText = data.title;
+        audio.play().catch(e => console.log("Audio Error"));
+
+        startLyrics(data.lyrics);
+        audio.onended = () => { currentTrack++; playTrack(); };
+    }
+
+    function startLyrics(lyrics) {
+        lyricIdx = 0;
+        const show = () => {
+            if(lyricIdx >= lyrics.length) lyricIdx = 0;
+            gsap.to(lyricEl, { opacity: 0, scale: 0.9, duration: 0.8, onComplete: () => {
+                lyricEl.innerText = lyrics[lyricIdx];
+                lyricIdx++;
+                gsap.to(lyricEl, { opacity: 1, scale: 1, duration: 0.8 });
+            }});
+        };
+        if(window.timer) clearInterval(window.timer);
+        show();
+        window.timer = setInterval(show, 4500);
+    }
+
     function animate() {
         requestAnimationFrame(animate);
+        const time = Date.now() * 0.001;
 
-        // Slow Rotation
-        particles.rotation.y += 0.001;
-        particles.rotation.x += 0.0005;
+        if(controls) controls.update();
+        if(particles) particles.rotation.y += 0.0002;
+        
+        // Orbit Bumi
+        if(earth) {
+            earth.position.x = Math.cos(time * 0.3) * 120 - 100;
+            earth.position.z = Math.sin(time * 0.3) * 120 - 200;
+            earth.rotation.y += 0.01;
+        }
 
-        // Mouse Reaction
-        gsap.to(particles.rotation, {
-            x: mouse.y * 0.5,
-            y: mouse.x * 0.5,
-            duration: 2
-        });
+        // UFO Flight
+        if(ufo) {
+            ufo.position.y = Math.sin(time) * 10 + 20;
+            ufo.position.x = Math.sin(time * 0.5) * 100;
+            ufo.position.z = Math.cos(time * 0.5) * 100;
+            ufo.rotation.y += 0.05;
+        }
 
         renderer.render(scene, camera);
     }
 
-    // INTERACTION
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = (e.clientX / window.innerWidth) - 0.5;
-        mouse.y = (e.clientY / window.innerHeight) - 0.5;
-    });
-
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // GSAP ENTRANCE ANIMATION
-    gsap.from("#hero-title", {
-        y: 100,
-        opacity: 0,
-        duration: 2,
-        ease: "expo.out",
-        delay: 0.5
-    });
-
-    // AI SYSTEM INTEGRATION (GEMINI)
-    const aiInput = document.getElementById('aiInput');
-    const aiResponse = document.getElementById('ai-response');
-    const API_KEY = "AIzaSyBC8-h450CojUbAMjNSrt9u7Tfh0jEkEAk";
-
-    aiInput.addEventListener('keypress', async (e) => {
-        if(e.key === 'Enter') {
-            const val = aiInput.value;
-            aiResponse.innerText = "PROCESSING...";
-            aiInput.value = "";
-
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `Kamu adalah Archive-X, sebuah entitas digital canggih. Jawab dengan dingin dan teknis: ${val}` }]}] })
-                });
-                const data = await res.json();
-                const text = data.candidates[0].content.parts[0].text;
-                
-                // Typing effect
-                aiResponse.innerText = "";
-                let i = 0;
-                const type = () => {
-                    if (i < text.length) {
-                        aiResponse.innerText += text.charAt(i);
-                        i++;
-                        setTimeout(type, 20);
-                    }
-                };
-                type();
-            } catch(e) {
-                aiResponse.innerText = "SYSTEM ERROR. REBOOT REQUIRED.";
-            }
+        if(camera) {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
     });
-
-    init();
 </script>
-
 </body>
 </html>
