@@ -3,131 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE OOR'S // ARCHIVE-DETOX</title>
-    
+    <title>THE OOR'S // DETOX-X SYNC</title>
     <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
-
     <style>
-        :root { --accent: #ff0000; --bg: #000000; }
+        :root { --accent: #ff0000; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
-        
-        #canvas-container { position: fixed; inset: 0; z-index: 1; background: #000; }
-
-        #startup {
-            position: fixed; inset: 0; z-index: 999; background: black;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
-        }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+        #canvas-container { position: fixed; inset: 0; z-index: 1; }
+        #startup { position: fixed; inset: 0; z-index: 999; background: black; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
         #startup h2 { font-family: 'Syncopate'; letter-spacing: 10px; color: var(--accent); }
-
-        .lyrics-container {
-            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; width: 85%; pointer-events: none; z-index: 10;
-        }
-        #current-lyric {
-            font-family: 'Syncopate'; font-size: clamp(1.2rem, 4vw, 3rem);
-            font-weight: 700; text-transform: uppercase; text-shadow: 0 0 20px var(--accent); opacity: 0;
-        }
-
-        .hud { position: fixed; bottom: 40px; left: 40px; z-index: 20; border-left: 3px solid var(--accent); padding-left: 20px; pointer-events: none; }
+        .lyrics-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 90%; z-index: 10; pointer-events: none; }
+        #current-lyric { font-family: 'Syncopate'; font-size: clamp(1rem, 4vw, 2.5rem); font-weight: 700; text-transform: uppercase; text-shadow: 0 0 20px var(--accent); opacity: 0; }
+        .hud { position: fixed; bottom: 40px; left: 40px; z-index: 20; border-left: 3px solid var(--accent); padding-left: 20px; }
     </style>
 </head>
 <body>
 
 <div id="startup" onclick="startSystem()">
-    <h2>[ INITIALIZE DETOX ]</h2>
-    <p style="opacity:0.5; font-size: 0.7rem; margin-top:10px;">CLICK TO DEPLOY ARCHIVE</p>
+    <h2>[ SYNC SYSTEM ]</h2>
+    <p style="opacity:0.4; font-size: 0.6rem; margin-top:10px;">CLICK TO LOAD AUDIO & VISUAL</p>
 </div>
 
 <div id="canvas-container"></div>
+<div class="hud"><h3 id="song-title" style="font-family:'Syncopate'; color:var(--accent);">AWAITING</h3></div>
+<div class="lyrics-container"><div id="current-lyric"></div></div>
 
-<div class="hud">
-    <p style="font-size: 0.6rem; opacity: 0.5;">NOW STREAMING:</p>
-    <h3 id="song-title" style="font-family:'Syncopate'; color:var(--accent);">STANDBY</h3>
-</div>
-
-<div class="lyrics-container">
-    <div id="current-lyric">...</div>
-</div>
-
-<audio id="audio-player"></audio>
+<audio id="audio-player" preload="auto"></audio>
 
 <script>
-    // DATA LIRIK FULL LO VIN
+    // SISTEM TIMESTAMP: lirik muncul berdasarkan DETIK lagu
     const setlist = [
         {
-            title: "C.h.a.o.s.m.y.t.h.",
-            file: "chaosmyth.mp3", 
-            lyrics: [
-                "Dream as if you'll live forever",
-                "And live as if you'll die today",
-                "Fuzake ai tawaimonai",
-                "Kudaranai hanashi wo shite wa",
-                "Nakiwarai nagusame ai",
-                "So owaranai uta ima utau yo",
-                "Kakegae no nai takaromo no wa",
-                "Taisetsuna memory",
-                "Kore kara saki mo zutto isshou zutto"
+            title: "C.H.A.O.S.M.Y.T.H",
+            file: "chaosmyth.mp3",
+            data: [
+                { time: 5, text: "Aikawarazu ano koro ni hanashita" },
+                { time: 10, text: "Yume wo boku wa oi tsuzukete ru yo" },
+                { time: 15, text: "Mou kotoshi kara isogashiku naru yona?" },
+                { time: 20, text: "Demo kawarazu kono basho wa aru kara" },
+                { time: 27, text: "So everybody ever be buddies" },
+                { time: 32, text: "Days we grew up are days we will treasure" },
+                { time: 38, text: "Dream as if you will live forever" },
+                { time: 42, text: "And live as if you'll die today" }
+                // Tambahin sendiri detiknya ke bawah Vin biar makin presisi
             ]
         },
         {
-            title: "Nobody's Home",
+            title: "NOBODY'S HOME",
             file: "nobodyhomes.mp3",
-            lyrics: [
-                "How are you doing?",
-                "Nobody's home yeah",
-                "Nanimokamo wo sutete tobidashita ano hi",
-                "Ima yatto kizuita yo",
-                "Hanarete mo yuraganai mon wa aru!!",
-                "Bokura ikiru kagiri tsunagatte iru kara",
-                "Kokoro kara aishiteiru yo arigatou"
+            data: [
+                { time: 2, text: "How are you doing?" },
+                { time: 7, text: "Sonna fuu ni ieru no ni mo jikan ga kakatta ne?" },
+                { time: 13, text: "Itsudatte koko dake wa nukumori ya yasashi sa ga" },
+                { time: 18, text: "Nobody's home yeah" }
             ]
         }
     ];
 
-    let scene, camera, renderer, particles;
     let currentTrack = 0;
     const audio = document.getElementById('audio-player');
     const lyricEl = document.getElementById('current-lyric');
-
-    function init3D() {
-        // 1. SETUP SCENE
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 100;
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000, 1);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // 2. TAMBAH BINTANG (BIAR GAK HITAM DOANG)
-        const starGeo = new THREE.BufferGeometry();
-        const starPos = [];
-        for(let i=0; i<8000; i++) {
-            starPos.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
-        }
-        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1 });
-        particles = new THREE.Points(starGeo, starMat);
-        scene.add(particles);
-
-        // 3. TAMBAH CAHAYA
-        const light = new THREE.PointLight(0xff0000, 2, 500);
-        light.position.set(0, 0, 50);
-        scene.add(light);
-
-        animate();
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        particles.rotation.y += 0.001;
-        renderer.render(scene, camera);
-    }
+    let lastText = "";
 
     function startSystem() {
         gsap.to("#startup", { opacity: 0, duration: 1, onComplete: () => {
@@ -140,41 +78,58 @@
     function playTrack() {
         if(currentTrack >= setlist.length) currentTrack = 0;
         const track = setlist[currentTrack];
-        
         audio.src = track.file;
         document.getElementById('song-title').innerText = track.title;
         
-        audio.play().catch(e => {
-            console.error("Audio Gagal Jalan. Pastikan file ada.");
-            // Tetap jalanin lirik meski audio gagal biar gak macet
-        });
+        // Load dulu baru play biar gak delay
+        audio.load();
+        audio.play();
 
-        startLyrics(track.lyrics);
+        audio.ontimeupdate = () => {
+            const currentTime = audio.currentTime;
+            const currentLyrics = track.data;
+            
+            // Cari lirik yang pas sama detik lagu
+            const activeLyric = [...currentLyrics].reverse().find(l => currentTime >= l.time);
+            
+            if (activeLyric && activeLyric.text !== lastText) {
+                lastText = activeLyric.text;
+                updateLyricDisplay(activeLyric.text);
+            }
+        };
+
         audio.onended = () => { currentTrack++; playTrack(); };
     }
 
-    function startLyrics(lyrics) {
-        let idx = 0;
-        const show = () => {
-            if(idx >= lyrics.length) idx = 0;
-            gsap.to(lyricEl, { opacity: 0, y: 10, duration: 0.5, onComplete: () => {
-                lyricEl.innerText = lyrics[idx];
-                idx++;
-                gsap.to(lyricEl, { opacity: 1, y: 0, duration: 0.5 });
-            }});
-        };
-        if(window.timer) clearInterval(window.timer);
-        show();
-        window.timer = setInterval(show, 4000);
+    function updateLyricDisplay(text) {
+        gsap.to(lyricEl, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+            lyricEl.innerText = text;
+            gsap.to(lyricEl, { opacity: 1, y: 0, duration: 0.3 });
+        }});
     }
 
-    window.addEventListener('resize', () => {
-        if(camera) {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+    function init3D() {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.z = 100;
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for(let i=0; i<5000; i++) starPos.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 }));
+        scene.add(stars);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0005;
+            renderer.render(scene, camera);
         }
-    });
+        animate();
+    }
 </script>
 </body>
 </html>
