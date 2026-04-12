@@ -1,33 +1,52 @@
-<!DOCTYPE html><html lang="en"><head><style>body{margin:0;overflow:hidden;background:#000}</style></head><body>
+<!DOCTYPE html><html lang="en"><head><style>body{margin:0;overflow:hidden;background:#050505;font-family:sans-serif;}</style></head><body>
+<div style="position:fixed;top:40px;left:40px;color:#ff0000;letter-spacing:10px;z-index:10;font-weight:900;opacity:0.5">DETOX SHOWROOM</div>
 <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
 <script>
-const s=new THREE.Scene(),c=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-const r=new THREE.WebGLRenderer({antialias:true});r.setSize(window.innerWidth,window.innerHeight);
-r.toneMapping=THREE.ReinhardToneMapping;r.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(r.domElement);
-const g=new THREE.BoxGeometry(1,1,1),m=new THREE.MeshStandardMaterial({color:0x050505,metalness:1,roughness:0});
-const inst=new THREE.InstancedMesh(g,m,2000);const mat=new THREE.Matrix4();
-for(let i=0;i<2000;i++){
-    let x=(Math.random()-0.5)*40,y=(Math.random()-0.5)*40,z=(Math.random()-0.5)*40;
-    mat.setPosition(x,y,z);inst.setMatrixAt(i,mat);
-}s.add(inst);
-const l1=new THREE.PointLight(0xff0000,100,50);l1.position.set(10,10,10);s.add(l1);
-const l2=new THREE.PointLight(0x00f3ff,100,50);l2.position.set(-10,-10,-10);s.add(l2);
-s.fog=new THREE.FogExp2(0x000000,0.05);
-const shm=`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`;
-const shf=`varying vec2 vUv;uniform float t;void main(){
-    vec3 col=0.5+0.5*cos(t+vUv.xyx+vec3(0,2,4));gl_FragColor=vec4(col*0.2,1.0);}`;
-const bgG=new THREE.SphereGeometry(100,32,32),bgM=new THREE.ShaderMaterial({
-    uniforms:{t:{value:0}},vertexShader:shm,fragmentShader:shf,side:THREE.BackSide});
-const bg=new THREE.Mesh(bgG,bgM);s.add(bg);
+const s=new THREE.Scene(),c=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);
+const r=new THREE.WebGLRenderer({antialias:true,alpha:true});r.setSize(window.innerWidth,window.innerHeight);
+r.toneMapping=THREE.ReinhardToneMapping;r.toneMappingExposure=2;document.body.appendChild(r.domElement);
+s.fog=new THREE.Fog(0x050505,10,50);
+
+// CAR GROUP (Lekukan AAA)
+const car=new THREE.Group();
+const bodyM=new THREE.MeshStandardMaterial({color:0x111111,metalness:1,roughness:0.05}); // Deep Black Gloss
+const glassM=new THREE.MeshStandardMaterial({color:0x00f3ff,transparent:true,opacity:0.4,metalness:1});
+
+const chassis=new THREE.Mesh(new THREE.BoxGeometry(4,0.8,2),bodyM);chassis.position.y=0.6;
+const cabin=new THREE.Mesh(new THREE.BoxGeometry(2,0.6,1.8),glassM);cabin.position.set(-0.2,1.2,0);
+const wheelG=new THREE.CylinderGeometry(0.4,0.4,0.3,32);const wheelM=new THREE.MeshStandardMaterial({color:0x000});
+for(let i=0;i<4;i++){
+    const w=new THREE.Mesh(wheelG,wheelM);w.rotation.x=Math.PI/2;
+    w.position.set(i<2?1.2:-1.2,0.4,i%2?1:-1);car.add(w);
+}car.add(chassis,cabin);s.add(car);
+
+// WORKSHOP FLOOR (Mirror Effect)
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x080808,roughness:0.1,metalness:0.5}));
+floor.rotation.x=-Math.PI/2;s.add(floor);
+
+// AAA LIGHTING (Studio Setup)
+const lights=[];
+const setupLight=(x,y,z,color,int)=>{
+    const l=new THREE.SpotLight(color,int);l.position.set(x,y,z);
+    l.castShadow=true;l.angle=Math.PI/4;l.penumbra=1;s.add(l);return l;
+};
+lights.push(setupLight(5,10,5,0xff0000,500)); // Red Accent
+lights.push(setupLight(-5,10,-5,0x00f3ff,500)); // Cyan Accent
+lights.push(setupLight(0,15,0,0xffffff,300)); // Top White
+
+c.position.set(8,4,8);c.lookAt(0,1,0);
+
 function animate(t){
     requestAnimationFrame(animate);const time=t*0.001;
-    inst.rotation.x=time*0.1;inst.rotation.y=time*0.15;
-    bgM.uniforms.t.value=time;
-    c.position.z=25+Math.sin(time)*5;c.lookAt(0,0,0);
-    l1.position.x=Math.sin(time)*15;l1.position.z=Math.cos(time)*15;
+    // Auto Rotation 360
+    car.rotation.y=time*0.5;
+    // Hovering Motion
+    car.position.y=Math.sin(time*2)*0.05;
+    // Camera Smoothing
+    c.position.x=8*Math.cos(time*0.2);c.position.z=8*Math.sin(time*0.2);c.lookAt(0,1,0);
+    // Flickering Lights
+    lights[0].intensity=500+Math.random()*100;
     r.render(s,c);
 }animate();
 window.onresize=()=>{c.aspect=window.innerWidth/window.innerHeight;c.updateProjectionMatrix();r.setSize(window.innerWidth,window.innerHeight)};
-// TITAN-100 ENGINE DEPLOYED. NO LAG. NO BURIK. ONLY AAA VIBE.
 </script></body></html>
