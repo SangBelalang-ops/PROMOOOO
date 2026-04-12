@@ -3,323 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DETOX // VOXEL-VOID ENGINE</title>
+    <title>DETOX // VOXEL BREAKER</title>
     <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #ff0000; --panel: rgba(15, 15, 15, 0.9); }
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-        body { background: #000; color: #fff; font-family: 'Space Mono', monospace; overflow: hidden; height: 100vh; }
+        :root { --accent: #ff0000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; color: #fff; font-family: 'Space Mono', monospace; overflow: hidden; }
         
-        /* UI KELAS DUNIA */
-        #loading-screen {
-            position: fixed; inset: 0; z-index: 1000; background: #000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .matrix-text { font-family: 'Syncopate'; font-size: 1.5rem; letter-spacing: 15px; color: var(--accent); margin-bottom: 20px; text-shadow: 0 0 20px var(--accent); }
-        .progress-container { width: 300px; height: 2px; background: #222; position: relative; }
-        .progress-bar { position: absolute; height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 0.3s; }
+        #crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: var(--accent); opacity: 0.8; }
+        #crosshair::before { top: 50%; left: 0; width: 100%; height: 2px; }
+        #crosshair::after { top: 0; left: 50%; width: 2px; height: 100%; }
 
-        #hud {
-            position: fixed; inset: 0; z-index: 100; pointer-events: none; display: none;
-            border: 20px solid rgba(255, 0, 0, 0.05);
-        }
-        .crosshair { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; }
-        .crosshair::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: var(--accent); transform: translate(-50%, -50%); }
+        #hud { position: fixed; bottom: 40px; left: 40px; z-index: 50; border-left: 3px solid var(--accent); padding-left: 20px; text-shadow: 0 0 10px var(--accent); }
+        #msg { position: fixed; top: 40px; width: 100%; text-align: center; font-family: 'Syncopate'; font-size: 0.7rem; letter-spacing: 5px; opacity: 0.5; }
+        
+        #overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
+        .glitch { font-family: 'Syncopate'; font-size: 2rem; letter-spacing: 15px; color: #fff; position: relative; }
+        .glitch::after { content: 'DETOX-X'; position: absolute; left: 2px; text-shadow: -2px 0 red; background: black; overflow: hidden; clip: rect(0,900px,0,0); animation: noise 2s infinite linear alternate-reverse; }
 
-        .debug-panel {
-            position: absolute; top: 40px; left: 40px; background: var(--panel); padding: 15px;
-            border-left: 3px solid var(--accent); font-size: 0.65rem; letter-spacing: 2px; line-height: 1.8;
-        }
-
-        #instruction {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: var(--panel); padding: 10px 30px; border: 1px solid #333;
-            font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.5);
-        }
+        @keyframes noise { 0% { clip: rect(10px, 999px, 40px, 0); } 100% { clip: rect(80px, 999px, 90px, 0); } }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">
-    <div class="matrix-text">INITIALIZING VOXEL</div>
-    <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
-    <p id="p-text" style="margin-top: 15px; font-size: 0.6rem; opacity: 0.4;">MAPPING TERRAIN CHUNKS...</p>
+<div id="msg">LEFT CLICK: DESTROY | RIGHT CLICK: BUILD | ESC: UNLOCK</div>
+<div id="crosshair"></div>
+<div id="hud">
+    <h2 style="font-family:'Syncopate'; font-size: 1rem;">VOXEL CORE V5</h2>
+    <p id="coords">X: 0 Y: 0 Z: 0</p>
 </div>
 
-<div id="hud">
-    <div class="crosshair"></div>
-    <div class="debug-panel">
-        <span style="color:var(--accent)">> SYSTEM: DETOX_V4</span><br>
-        RENDER_DIST: 64 CHUNKS<br>
-        VOXEL_PHYSICS: ENABLED<br>
-        LIGHTING: DYNAMIC_RAY<br>
-        <span id="pos-display">POS: X:0 Y:0 Z:0</span>
-    </div>
-    <div id="instruction">CLICK TO SYNC NEURAL LINK [LMB]</div>
+<div id="overlay" onclick="start()">
+    <div class="glitch">DETOX-X</div>
+    <p style="margin-top: 20px; font-size: 0.6rem; opacity: 0.4;">CLICK TO INITIALIZE WORLD</p>
 </div>
 
 <audio id="bgm" src="chaosmyth.mp3" loop></audio>
 
 <script>
-/**
- * DETOX VOXEL ENGINE V4
- * CUSTOM BUILT FOR ALVIN PHANESTU
- */
+    let scene, camera, renderer, controls, raycaster, mouse;
+    let voxels = [];
+    const audio = document.getElementById('bgm');
 
-let scene, camera, renderer, clock, controls;
-let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false;
-let velocity = new THREE.Vector3();
-let direction = new THREE.Vector3();
-let objects = []; // Untuk collision
-
-const audio = document.getElementById('bgm');
-
-// 1. BOOTSTRAP ENGINE
-function init() {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020202);
-    scene.fog = new THREE.FogExp2(0x020202, 0.04);
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.body.appendChild(renderer.domElement);
-
-    // POINTER LOCK (Kunci Mouse ke Game)
-    controls = new THREE.PointerLockControls(camera, document.body);
-    document.addEventListener('click', () => {
-        controls.lock();
-    });
-
-    controls.addEventListener('lock', () => {
-        document.getElementById('instruction').style.display = 'none';
+    function start() {
+        document.getElementById('overlay').style.display = 'none';
         audio.play();
-    });
+        init();
+        animate();
+    }
 
-    controls.addEventListener('unlock', () => {
-        document.getElementById('instruction').style.display = 'block';
-    });
+    function init() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020202);
+        scene.fog = new THREE.FogExp2(0x020202, 0.03);
 
-    scene.add(controls.getObject());
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(5, 5, 5);
 
-    setupLighting();
-    generateWorld();
-    setupInput();
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
 
-    // Fade out loading
-    gsap.to("#loading-screen", { opacity: 0, duration: 2, delay: 1, onComplete: () => {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('hud').style.display = 'block';
-    }});
-}
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
 
-// 2. AAA LIGHTING SYSTEM
-function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-    scene.add(ambientLight);
+        // LIGHTS (High Contrast)
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(10, 20, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x202020));
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    sunLight.position.set(50, 100, 50);
-    sunLight.castShadow = true;
-    sunLight.shadow.camera.left = -100;
-    sunLight.shadow.camera.right = 100;
-    sunLight.shadow.camera.top = 100;
-    sunLight.shadow.camera.bottom = -100;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
-    scene.add(sunLight);
-
-    // Rim Lighting
-    const rimLight = new THREE.PointLight(0xff0000, 2, 50);
-    rimLight.position.set(0, 10, 0);
-    scene.add(rimLight);
-}
-
-// 3. PROCEDURAL VOXEL GENERATION (Minecraft Style Logic)
-function generateWorld() {
-    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    const size = 30; // 30x30 chunks
-    
-    for (let x = -size; x < size; x++) {
-        for (let z = -size; z < size; z++) {
-            // Kalkulasi Noise Tinggi (Dewa Level)
-            let height = Math.floor(
-                Math.sin(x * 0.1) * Math.cos(z * 0.1) * 4 + 
-                Math.sin(x * 0.05) * 2
-            );
-
-            // Pilih Material berdasarkan ketinggian
-            let color = 0x111111;
-            let emissive = 0x000000;
-
-            if (height > 2) {
-                color = 0x333333; 
-                emissive = 0xff0000; // Red Peak
-            } else if (height < -1) {
-                color = 0x050505;
-                emissive = 0x00f3ff; // Blue Deep
+        // GENERATE WORLD
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        for(let x = -10; x < 10; x++) {
+            for(let z = -10; z < 10; z++) {
+                createVoxel(x, 0, z);
             }
-
-            const material = new THREE.MeshStandardMaterial({
-                color: color,
-                roughness: 0.2,
-                metalness: 0.8,
-                emissive: emissive,
-                emissiveIntensity: 0.2
-            });
-
-            const voxel = new THREE.Mesh(boxGeo, material);
-            voxel.position.set(x, height, z);
-            voxel.castShadow = true;
-            voxel.receiveShadow = true;
-            
-            scene.add(voxel);
-            objects.push(voxel);
-
-            // Update Progress Bar
-            let progress = ((x + size) * (size * 2) + (z + size)) / ((size * 2) * (size * 2)) * 100;
-            document.getElementById('p-bar').style.width = progress + "%";
-        }
-    }
-}
-
-// 4. PHYSICS & MOVEMENT ENGINE (Ubisoft Style)
-function setupInput() {
-    const onKeyDown = (event) => {
-        switch (event.code) {
-            case 'ArrowUp':
-            case 'KeyW': moveForward = true; break;
-            case 'ArrowLeft':
-            case 'KeyA': moveLeft = true; break;
-            case 'ArrowDown':
-            case 'KeyS': moveBackward = true; break;
-            case 'ArrowRight':
-            case 'KeyD': moveRight = true; break;
-            case 'Space': if (canJump === true) velocity.y += 350; canJump = false; break;
-        }
-    };
-
-    const onKeyUp = (event) => {
-        switch (event.code) {
-            case 'ArrowUp':
-            case 'KeyW': moveForward = false; break;
-            case 'ArrowLeft':
-            case 'KeyA': moveLeft = false; break;
-            case 'ArrowDown':
-            case 'KeyS': moveBackward = false; break;
-            case 'ArrowRight':
-            case 'KeyD': moveRight = false; break;
-        }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
-    clock = new THREE.Clock();
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-
-    if (controls.isLocked === true) {
-        const delta = clock.getDelta();
-
-        // Friksi dan Akselerasi
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y -= 9.8 * 100.0 * delta; // Gravitasi (100.0 = mass)
-
-        direction.z = Number(moveForward) - Number(moveBackward);
-        direction.x = Number(moveRight) - Number(moveLeft);
-        direction.normalize();
-
-        if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-        if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
-
-        controls.moveRight(-velocity.x * delta);
-        controls.moveForward(-velocity.z * delta);
-
-        controls.getObject().position.y += (velocity.y * delta); // Gerak Vertikal
-
-        // Simple Ground Collision
-        if (controls.getObject().position.y < 5) {
-            velocity.y = 0;
-            controls.getObject().position.y = 5;
-            canJump = true;
         }
 
-        // Update HUD
-        const pos = controls.getObject().position;
-        document.getElementById('pos-display').innerText = `POS: X:${Math.round(pos.x)} Y:${Math.round(pos.y)} Z:${Math.round(pos.z)}`;
+        // CUSTOM POINTER LOCK
+        document.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('resize', onResize);
     }
 
-    renderer.render(scene, camera);
-}
-
-// Pointer Lock Helper (Library Manual)
-THREE.PointerLockControls = function (camera, domElement) {
-    const _this = this;
-    this.domElement = domElement;
-    this.isLocked = false;
-    const changeEvent = { type: 'change' };
-    const lockEvent = { type: 'lock' };
-    const unlockEvent = { type: 'unlock' };
-
-    function onMouseMove(event) {
-        if (_this.isLocked === false) return;
-        const movementX = event.movementX || 0;
-        const movementY = event.movementY || 0;
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-        euler.setFromQuaternion(camera.quaternion);
-        euler.y -= movementX * 0.002;
-        euler.x -= movementY * 0.002;
-        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
-        camera.quaternion.setFromEuler(euler);
+    function createVoxel(x, y, z) {
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: 0x111111, 
+            metalness: 0.9, 
+            roughness: 0.1,
+            emissive: 0xff0000,
+            emissiveIntensity: 0.1
+        });
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mat);
+        mesh.position.set(x, y, z);
+        scene.add(mesh);
+        voxels.push(mesh);
     }
 
-    function onPointerlockChange() {
-        if (document.pointerLockElement === _this.domElement) {
-            _this.dispatchEvent(lockEvent);
-            _this.isLocked = true;
-        } else {
-            _this.dispatchEvent(unlockEvent);
-            _this.isLocked = false;
+    function onMouseDown(e) {
+        // Raycasting Logic
+        mouse.x = 0; // Center screen
+        mouse.y = 0;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(voxels);
+
+        if (intersects.length > 0) {
+            const intersect = intersects[0];
+            if (e.button === 0) { // Left Click: Hancurin
+                scene.remove(intersect.object);
+                voxels = voxels.filter(v => v !== intersect.object);
+            } else if (e.button === 2) { // Right Click: Bangun
+                const pos = intersect.object.position.clone().add(intersect.face.normal);
+                createVoxel(pos.x, pos.y, pos.z);
+            }
         }
     }
 
-    this.lock = function () { this.domElement.requestPointerLock(); };
-    this.unlock = function () { document.exitPointerLock(); };
-    this.getObject = function () { return camera; };
-    this.moveForward = function (distance) {
-        const v = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-        v.y = 0; v.normalize();
-        camera.position.add(v.multiplyScalar(distance));
-    };
-    this.moveRight = function (distance) {
-        const v = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-        v.y = 0; v.normalize();
-        camera.position.add(v.multiplyScalar(distance));
-    };
+    // Disable Right-Click Menu
+    window.oncontextmenu = (e) => e.preventDefault();
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('pointerlockchange', onPointerlockChange);
-};
-Object.assign(THREE.PointerLockControls.prototype, THREE.EventDispatcher.prototype);
+    function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 
-// RUN ENGINE
-init();
-animate();
+    // Gerakan Camera (Orbit basic buat testing)
+    let angle = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Bikin kamera melayang estetik
+        angle += 0.005;
+        camera.position.x = Math.cos(angle) * 15;
+        camera.position.z = Math.sin(angle) * 15;
+        camera.lookAt(0, 0, 0);
 
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+        document.getElementById('coords').innerText = `X: ${camera.position.x.toFixed(2)} Y: ${camera.position.y.toFixed(2)} Z: ${camera.position.z.toFixed(2)}`;
+        
+        renderer.render(scene, camera);
+    }
 </script>
 </body>
 </html>
