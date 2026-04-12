@@ -3,148 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOXEL-GOD // BEYOND MINECRAFT</title>
+    <title>DETOX // VOXEL-VOID ENGINE</title>
     <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00ff88; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: #fff; font-family: 'Space Mono', monospace; overflow: hidden; }
+        :root { --accent: #ff0000; --panel: rgba(15, 15, 15, 0.9); }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        body { background: #000; color: #fff; font-family: 'Space Mono', monospace; overflow: hidden; height: 100vh; }
         
-        #ui-overlay { position: fixed; inset: 0; z-index: 100; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        #stats { position: fixed; top: 20px; left: 20px; z-index: 50; display: none; font-size: 0.7rem; color: var(--accent); }
-        
-        .start-btn {
-            background: none; border: 1px solid var(--accent); color: var(--accent); padding: 20px 50px;
-            font-family: 'Syncopate'; cursor: pointer; transition: 0.4s; letter-spacing: 5px;
-            box-shadow: 0 0 15px rgba(0,255,136,0.2);
+        /* UI KELAS DUNIA */
+        #loading-screen {
+            position: fixed; inset: 0; z-index: 1000; background: #000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .start-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 50px var(--accent); }
+        .matrix-text { font-family: 'Syncopate'; font-size: 1.5rem; letter-spacing: 15px; color: var(--accent); margin-bottom: 20px; text-shadow: 0 0 20px var(--accent); }
+        .progress-container { width: 300px; height: 2px; background: #222; position: relative; }
+        .progress-bar { position: absolute; height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 0.3s; }
 
-        canvas { display: block; }
-        .crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; border: 1px solid rgba(255,255,255,0.3); transform: translate(-50%, -50%); pointer-events: none; display: none; }
+        #hud {
+            position: fixed; inset: 0; z-index: 100; pointer-events: none; display: none;
+            border: 20px solid rgba(255, 0, 0, 0.05);
+        }
+        .crosshair { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; }
+        .crosshair::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: var(--accent); transform: translate(-50%, -50%); }
+
+        .debug-panel {
+            position: absolute; top: 40px; left: 40px; background: var(--panel); padding: 15px;
+            border-left: 3px solid var(--accent); font-size: 0.65rem; letter-spacing: 2px; line-height: 1.8;
+        }
+
+        #instruction {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: var(--panel); padding: 10px 30px; border: 1px solid #333;
+            font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.5);
+        }
     </style>
 </head>
 <body>
 
-<div id="stats">CHUNK_RENDER: ACTIVE <br> VOXEL_TYPE: CRYSTAL <br> FPS: 60</div>
-<div class="crosshair" id="ch"></div>
+<div id="loading-screen">
+    <div class="matrix-text">INITIALIZING VOXEL</div>
+    <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
+    <p id="p-text" style="margin-top: 15px; font-size: 0.6rem; opacity: 0.4;">MAPPING TERRAIN CHUNKS...</p>
+</div>
 
-<div id="ui-overlay">
-    <h1 style="font-family:'Syncopate'; font-size: 3rem; letter-spacing: 20px; margin-bottom: 20px; color: var(--accent);">VOXEL.ENV</h1>
-    <p style="opacity: 0.5; margin-bottom: 50px; letter-spacing: 5px;">WORLD GENERATOR V1.0 // ARCHIVE DETOX</p>
-    <button class="start-btn" onclick="launchWorld()">GENERATE WORLD</button>
+<div id="hud">
+    <div class="crosshair"></div>
+    <div class="debug-panel">
+        <span style="color:var(--accent)">> SYSTEM: DETOX_V4</span><br>
+        RENDER_DIST: 64 CHUNKS<br>
+        VOXEL_PHYSICS: ENABLED<br>
+        LIGHTING: DYNAMIC_RAY<br>
+        <span id="pos-display">POS: X:0 Y:0 Z:0</span>
+    </div>
+    <div id="instruction">CLICK TO SYNC NEURAL LINK [LMB]</div>
 </div>
 
 <audio id="bgm" src="chaosmyth.mp3" loop></audio>
 
 <script>
-    let scene, camera, renderer, player, clock, voxels = [], worldSize = 20;
-    const audio = document.getElementById('bgm');
+/**
+ * DETOX VOXEL ENGINE V4
+ * CUSTOM BUILT FOR ALVIN PHANESTU
+ */
 
-    function launchWorld() {
-        gsap.to("#ui-overlay", { opacity: 0, duration: 1, onComplete: () => {
-            document.getElementById('ui-overlay').style.display = 'none';
-            document.getElementById('stats').style.display = 'block';
-            document.getElementById('ch').style.display = 'block';
-            initEngine();
-            audio.play();
-            animate();
-        }});
-    }
+let scene, camera, renderer, clock, controls;
+let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false;
+let velocity = new THREE.Vector3();
+let direction = new THREE.Vector3();
+let objects = []; // Untuk collision
 
-    function initEngine() {
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050505);
-        scene.fog = new THREE.FogExp2(0x050505, 0.05);
+const audio = document.getElementById('bgm');
 
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild(renderer.domElement);
+// 1. BOOTSTRAP ENGINE
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020202);
+    scene.fog = new THREE.FogExp2(0x020202, 0.04);
 
-        // LIGHTING (AAA Level)
-        const sun = new THREE.DirectionalLight(0x00ff88, 1.5);
-        sun.position.set(50, 100, 50);
-        sun.castShadow = true;
-        scene.add(sun);
-        scene.add(new THREE.AmbientLight(0x404040, 0.6));
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
 
-        // VOXEL GENERATION LOGIC (Minecraft Style)
-        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-        for(let x = -worldSize; x < worldSize; x++) {
-            for(let z = -worldSize; z < worldSize; z++) {
-                // Perlin Noise-ish Height
-                const h = Math.floor(Math.sin(x * 0.2) * Math.cos(z * 0.2) * 3);
-                
-                const mat = new THREE.MeshStandardMaterial({ 
-                    color: 0x111111, 
-                    roughness: 0.1, 
-                    metalness: 0.8,
-                    emissive: 0x00ff88,
-                    emissiveIntensity: Math.random() * 0.2
-                });
+    // POINTER LOCK (Kunci Mouse ke Game)
+    controls = new THREE.PointerLockControls(camera, document.body);
+    document.addEventListener('click', () => {
+        controls.lock();
+    });
 
-                const cube = new THREE.Mesh(boxGeo, mat);
-                cube.position.set(x, h, z);
-                cube.receiveShadow = true;
-                cube.castShadow = true;
-                scene.add(cube);
-                voxels.push(cube);
+    controls.addEventListener('lock', () => {
+        document.getElementById('instruction').style.display = 'none';
+        audio.play();
+    });
+
+    controls.addEventListener('unlock', () => {
+        document.getElementById('instruction').style.display = 'block';
+    });
+
+    scene.add(controls.getObject());
+
+    setupLighting();
+    generateWorld();
+    setupInput();
+
+    // Fade out loading
+    gsap.to("#loading-screen", { opacity: 0, duration: 2, delay: 1, onComplete: () => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('hud').style.display = 'block';
+    }});
+}
+
+// 2. AAA LIGHTING SYSTEM
+function setupLighting() {
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    sunLight.position.set(50, 100, 50);
+    sunLight.castShadow = true;
+    sunLight.shadow.camera.left = -100;
+    sunLight.shadow.camera.right = 100;
+    sunLight.shadow.camera.top = 100;
+    sunLight.shadow.camera.bottom = -100;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
+
+    // Rim Lighting
+    const rimLight = new THREE.PointLight(0xff0000, 2, 50);
+    rimLight.position.set(0, 10, 0);
+    scene.add(rimLight);
+}
+
+// 3. PROCEDURAL VOXEL GENERATION (Minecraft Style Logic)
+function generateWorld() {
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    const size = 30; // 30x30 chunks
+    
+    for (let x = -size; x < size; x++) {
+        for (let z = -size; z < size; z++) {
+            // Kalkulasi Noise Tinggi (Dewa Level)
+            let height = Math.floor(
+                Math.sin(x * 0.1) * Math.cos(z * 0.1) * 4 + 
+                Math.sin(x * 0.05) * 2
+            );
+
+            // Pilih Material berdasarkan ketinggian
+            let color = 0x111111;
+            let emissive = 0x000000;
+
+            if (height > 2) {
+                color = 0x333333; 
+                emissive = 0xff0000; // Red Peak
+            } else if (height < -1) {
+                color = 0x050505;
+                emissive = 0x00f3ff; // Blue Deep
             }
+
+            const material = new THREE.MeshStandardMaterial({
+                color: color,
+                roughness: 0.2,
+                metalness: 0.8,
+                emissive: emissive,
+                emissiveIntensity: 0.2
+            });
+
+            const voxel = new THREE.Mesh(boxGeo, material);
+            voxel.position.set(x, height, z);
+            voxel.castShadow = true;
+            voxel.receiveShadow = true;
+            
+            scene.add(voxel);
+            objects.push(voxel);
+
+            // Update Progress Bar
+            let progress = ((x + size) * (size * 2) + (z + size)) / ((size * 2) * (size * 2)) * 100;
+            document.getElementById('p-bar').style.width = progress + "%";
+        }
+    }
+}
+
+// 4. PHYSICS & MOVEMENT ENGINE (Ubisoft Style)
+function setupInput() {
+    const onKeyDown = (event) => {
+        switch (event.code) {
+            case 'ArrowUp':
+            case 'KeyW': moveForward = true; break;
+            case 'ArrowLeft':
+            case 'KeyA': moveLeft = true; break;
+            case 'ArrowDown':
+            case 'KeyS': moveBackward = true; break;
+            case 'ArrowRight':
+            case 'KeyD': moveRight = true; break;
+            case 'Space': if (canJump === true) velocity.y += 350; canJump = false; break;
+        }
+    };
+
+    const onKeyUp = (event) => {
+        switch (event.code) {
+            case 'ArrowUp':
+            case 'KeyW': moveForward = false; break;
+            case 'ArrowLeft':
+            case 'KeyA': moveLeft = false; break;
+            case 'ArrowDown':
+            case 'KeyS': moveBackward = false; break;
+            case 'ArrowRight':
+            case 'KeyD': moveRight = false; break;
+        }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    clock = new THREE.Clock();
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    if (controls.isLocked === true) {
+        const delta = clock.getDelta();
+
+        // Friksi dan Akselerasi
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 100.0 * delta; // Gravitasi (100.0 = mass)
+
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
+        direction.normalize();
+
+        if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+        controls.moveRight(-velocity.x * delta);
+        controls.moveForward(-velocity.z * delta);
+
+        controls.getObject().position.y += (velocity.y * delta); // Gerak Vertikal
+
+        // Simple Ground Collision
+        if (controls.getObject().position.y < 5) {
+            velocity.y = 0;
+            controls.getObject().position.y = 5;
+            canJump = true;
         }
 
-        // PLAYER (First Person Simulation)
-        player = new THREE.Group();
-        player.position.set(0, 5, 10);
-        scene.add(player);
-        
-        clock = new THREE.Clock();
-
-        // CONTROLS
-        window.addEventListener('mousemove', (e) => {
-            const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-            player.rotation.y = -mouseX * 0.5;
-            camera.rotation.x = mouseY * 0.5;
-        });
-
-        window.addEventListener('keydown', (e) => {
-            const speed = 0.5;
-            if(e.key === 'w') player.translateZ(-speed);
-            if(e.key === 's') player.translateZ(speed);
-            if(e.key === 'a') player.translateX(-speed);
-            if(e.key === 'd') player.translateX(speed);
-        });
+        // Update HUD
+        const pos = controls.getObject().position;
+        document.getElementById('pos-display').innerText = `POS: X:${Math.round(pos.x)} Y:${Math.round(pos.y)} Z:${Math.round(pos.z)}`;
     }
 
-    function animate() {
-        requestAnimationFrame(animate);
-        const time = clock.getElapsedTime();
+    renderer.render(scene, camera);
+}
 
-        // Dynamic Environment
-        camera.position.copy(player.position);
-        camera.rotation.y = player.rotation.y;
+// Pointer Lock Helper (Library Manual)
+THREE.PointerLockControls = function (camera, domElement) {
+    const _this = this;
+    this.domElement = domElement;
+    this.isLocked = false;
+    const changeEvent = { type: 'change' };
+    const lockEvent = { type: 'lock' };
+    const unlockEvent = { type: 'unlock' };
 
-        // Voxel "Pulse" Effect
-        voxels.forEach((v, i) => {
-            if(i % 10 === 0) {
-                v.material.emissiveIntensity = Math.sin(time + i) * 0.5 + 0.5;
-            }
-        });
-
-        renderer.render(scene, camera);
+    function onMouseMove(event) {
+        if (_this.isLocked === false) return;
+        const movementX = event.movementX || 0;
+        const movementY = event.movementY || 0;
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        euler.setFromQuaternion(camera.quaternion);
+        euler.y -= movementX * 0.002;
+        euler.x -= movementY * 0.002;
+        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+        camera.quaternion.setFromEuler(euler);
     }
 
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    function onPointerlockChange() {
+        if (document.pointerLockElement === _this.domElement) {
+            _this.dispatchEvent(lockEvent);
+            _this.isLocked = true;
+        } else {
+            _this.dispatchEvent(unlockEvent);
+            _this.isLocked = false;
+        }
+    }
+
+    this.lock = function () { this.domElement.requestPointerLock(); };
+    this.unlock = function () { document.exitPointerLock(); };
+    this.getObject = function () { return camera; };
+    this.moveForward = function (distance) {
+        const v = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        v.y = 0; v.normalize();
+        camera.position.add(v.multiplyScalar(distance));
+    };
+    this.moveRight = function (distance) {
+        const v = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+        v.y = 0; v.normalize();
+        camera.position.add(v.multiplyScalar(distance));
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('pointerlockchange', onPointerlockChange);
+};
+Object.assign(THREE.PointerLockControls.prototype, THREE.EventDispatcher.prototype);
+
+// RUN ENGINE
+init();
+animate();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
 </body>
 </html>
