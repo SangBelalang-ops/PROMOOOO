@@ -1,130 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GALAXY ARCHIVE // INTERSTELLAR</title>
+    <title>THE SINGULARITY // ULTRA GALAXY</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;900&display=swap" rel="stylesheet">
+
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; color: white; }
-        #canvas-container { position: fixed; top: 0; left: 0; outline: none; }
-        
-        /* UI HUD */
-        .hud {
-            position: fixed; top: 40px; left: 40px; z-index: 100; pointer-events: none;
-        }
-        .hud h1 { font-family: 'Syncopate'; font-size: 1.5rem; letter-spacing: 10px; color: #00f3ff; margin: 0; }
-        
-        .controls {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 20px; z-index: 100;
-        }
-        .btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
-            padding: 15px 30px; border-radius: 50px; color: white; cursor: pointer;
-            backdrop-filter: blur(10px); font-family: 'Syncopate'; font-size: 0.7rem;
-            transition: 0.3s; letter-spacing: 2px;
-        }
-        .btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+        :root { --accent: #00f3ff; --bg: #000000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        /* UI OVERLAY */
+        .overlay { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; pointer-events: none; }
+        header { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 1.2rem; letter-spacing: 10px; color: var(--accent); text-transform: uppercase; }
+
+        .controls { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: auto; z-index: 100; }
+        .btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3); padding: 15px 30px; border-radius: 50px; color: white; cursor: pointer; backdrop-filter: blur(10px); font-family: 'Syncopate', sans-serif; font-size: 0.7rem; transition: 0.3s; letter-spacing: 2px; }
+        .btn:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--accent); }
         .btn.blue { border-color: #00f3ff; color: #00f3ff; }
         .btn.red { border-color: #ff4d4d; color: #ff4d4d; }
         .btn.yellow { border-color: #ffcc00; color: #ffcc00; }
 
-        .info-panel {
-            position: fixed; top: 50%; right: 40px; transform: translateY(-50%);
-            text-align: right; max-width: 300px; pointer-events: none;
-        }
-        .info-panel h2 { font-family: 'Syncopate'; font-size: 3rem; margin: 0; text-transform: uppercase; }
-        .info-panel p { opacity: 0.5; letter-spacing: 2px; }
+        .info-panel { position: fixed; top: 50%; right: 40px; transform: translateY(-50%); text-align: right; max-width: 300px; pointer-events: none; }
+        .info-panel h2 { font-family: 'Syncopate', sans-serif; font-size: 3rem; margin: 0; text-transform: uppercase; color: var(--accent); text-shadow: 0 0 20px var(--accent); }
+        .info-panel p { font-size: 0.9rem; opacity: 0.6; letter-spacing: 2px; margin-top: 10px; }
 
-        .scanline {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.1) 50%);
-            background-size: 100% 4px; z-index: 10; pointer-events: none;
-        }
+        footer { display: flex; justify-content: space-between; font-size: 0.7rem; letter-spacing: 3px; opacity: 0.4; }
     </style>
 </head>
 <body>
 
-<div class="scanline"></div>
 <div id="canvas-container"></div>
 
-<div class="hud">
-    <h1>MULTIVERSE ARCHIVE</h1>
-    <p style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 5px;">SYSTEM STATUS: NAVIGATION ACTIVE</p>
-</div>
+<div class="overlay">
+    <header>
+        <div class="logo">SINGULARITY</div>
+        <div style="font-size: 0.7rem; opacity: 0.5;">STATUS: ULTRA-VISUAL ACTIVE</div>
+    </header>
 
-<div class="info-panel">
-    <h2 id="galaxy-name">Deep Space</h2>
-    <p id="galaxy-desc">Scanning cosmic coordinates...</p>
-</div>
+    <div class="info-panel">
+        <h2 id="galaxy-name">Deep Space</h2>
+        <p id="galaxy-desc">Scanning coordinates...</p>
+    </div>
 
-<div class="controls">
-    <div class="btn blue" onclick="travelTo('blue')">Cyan Galaxy</div>
-    <div class="btn red" onclick="travelTo('red')">Crimson Sector</div>
-    <div class="btn yellow" onclick="travelTo('yellow')">Amber Cluster</div>
+    <div class="controls">
+        <div class="btn blue" onclick="travelTo('blue')">Cyan Galaxy</div>
+        <div class="btn red" onclick="travelTo('red')">Crimson Sector</div>
+        <div class="btn yellow" onclick="travelTo('yellow')">Amber Cluster</div>
+    </div>
+
+    <footer>
+        <div>COORDINATES: CLASSIFIED</div>
+        <div>EST. 2026 // SYSTEM V.ULTRA</div>
+    </footer>
 </div>
 
 <script>
-    let scene, camera, renderer, raycaster, mouse;
-    const systems = {};
+    /**
+     * THREE.JS ENGINE - THE CORE ULTRA-VISUAL
+     */
+    let scene, camera, renderer, systems = {};
+    const mouse = { x: 0, y: 0 };
 
     function init() {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-        camera.position.set(0, 10, 30);
+        camera.position.set(0, 20, 50);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // CREATE 3 GALAXIES
-        systems.blue = createGalaxy(0x00f3ff, { x: -30, y: 0, z: -20 });
-        systems.red = createGalaxy(0xff4d4d, { x: 30, y: 5, z: -40 });
-        systems.yellow = createGalaxy(0xffcc00, { x: 0, y: -10, z: -60 });
+        // CREATE 3 ULTRA GALAXY SYSTEMS
+        systems.blue = createUltraGalaxy(0x00f3ff, { x: -40, y: 0, z: -30 });
+        systems.red = createUltraGalaxy(0xff4d4d, { x: 40, y: 10, z: -60 });
+        systems.yellow = createUltraGalaxy(0xffcc00, { x: 0, y: -20, z: -90 });
 
-        // Add ambient particles (stars)
+        // Add dense volumetric starfield background
         const starGeo = new THREE.BufferGeometry();
         const starCoords = [];
-        for(let i=0; i<5000; i++) {
-            starCoords.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
+        for(let i=0; i<20000; i++) {
+            starCoords.push((Math.random()-0.5)*1500, (Math.random()-0.5)*1500, (Math.random()-0.5)*1500);
         }
         starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2, transparent: true, opacity: 0.5 });
         scene.add(new THREE.Points(starGeo, starMat));
 
         animate();
     }
 
-    function createGalaxy(color, pos) {
+    function createUltraGalaxy(color, pos) {
         const group = new THREE.Group();
-        const particleCount = 4000;
+        const particleCount = 15000; // Dense volumetric feel
         const geo = new THREE.BufferGeometry();
         const coords = [];
         const colors = [];
 
         for (let i = 0; i < particleCount; i++) {
-            const r = Math.random() * 15;
+            const r = Math.random() * 25; // Galaxy radius
             const theta = Math.random() * Math.PI * 2;
-            const spiral = r * 0.5; // spiral effect
+            const spiral = r * 0.4; // Strong spiral arm effect
+            const yDist = (Math.random() - 0.5) * 5 * (1 - r/30); // Vertical thickness based on radius
             
             coords.push(
                 Math.cos(theta + spiral) * r,
-                (Math.random() - 0.5) * 2,
+                yDist,
                 Math.sin(theta + spiral) * r
             );
+
+            // Give color variance
+            const variance = 0.2;
+            const rV = ((color >> 16) & 0xFF) / 255 + (Math.random()-0.5)*variance;
+            const gV = ((color >> 8) & 0xFF) / 255 + (Math.random()-0.5)*variance;
+            const bV = (color & 0xFF) / 255 + (Math.random()-0.5)*variance;
+            colors.push(rV, gV, bV);
         }
 
         geo.setAttribute('position', new THREE.Float32BufferAttribute(coords, 3));
+        geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); // Use vertex colors
+
         const mat = new THREE.PointsMaterial({
-            color: color,
-            size: 0.05,
+            size: 0.1, // Small particles for dust/star cloud effect
+            vertexColors: true, // Varied colors
             transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending // Glow!
         });
 
         const points = new THREE.Points(geo, mat);
@@ -138,43 +146,36 @@
         const targetPos = systems[target].position;
         const nameDisplay = document.getElementById('galaxy-name');
         const descDisplay = document.getElementById('galaxy-desc');
-
-        // ANIMASI ZOOM CAMERA
-        gsap.to(camera.position, {
-            x: targetPos.x,
-            y: targetPos.y + 2,
-            z: targetPos.z + 15,
-            duration: 2.5,
-            ease: "expo.inOut"
-        });
+        const accentColor = `#${target === 'blue' ? '00f3ff' : (target === 'red' ? 'ff4d4d' : 'ffcc00')}`;
 
         // UPDATE UI
-        if(target === 'blue') {
-            nameDisplay.innerText = "Cyan Galaxy";
-            nameDisplay.style.color = "#00f3ff";
-            descDisplay.innerText = "Home of the Archive AI Core.";
-        } else if(target === 'red') {
-            nameDisplay.innerText = "Crimson Sector";
-            nameDisplay.style.color = "#ff4d4d";
-            descDisplay.innerText = "Emergency Data Storage & Music Labs.";
-        } else {
-            nameDisplay.innerText = "Amber Cluster";
-            nameDisplay.style.color = "#ffcc00";
-            descDisplay.innerText = "Legacy Records & Experimental Sound.";
-        }
+        nameDisplay.innerText = target === 'blue' ? "Cyan Galaxy" : (target === 'red' ? "Crimson Sector" : "Amber Cluster");
+        nameDisplay.style.color = accentColor;
+        nameDisplay.style.textShadow = `0 0 20px ${accentColor}`;
+        descDisplay.innerText = target === 'blue' ? "Core Archive Alpha. Central Hub." : (target === 'red' ? "Indie Labs & Sound Design Studio." : "Legacy Systems & Research Data.");
+
+        // ANIMASI ZOOM CAMERA KE PUNCAK GALAXY
+        gsap.to(camera.position, {
+            x: targetPos.x,
+            y: targetPos.y + 5,
+            z: targetPos.z + 25, // Zoom into the volumetric center
+            duration: 3,
+            ease: "expo.inOut"
+        });
     }
 
     function animate() {
         requestAnimationFrame(animate);
         
-        // Putar pelan semua galaksi
-        Object.values(systems).forEach(sys => {
-            sys.rotation.y += 0.002;
-        });
+        // Putar pelan semua galaksi, kecepatan berbeda
+        systems.blue.rotation.y += 0.001;
+        systems.red.rotation.y += 0.0008;
+        systems.yellow.rotation.y += 0.0012;
 
         renderer.render(scene, camera);
     }
 
+    // Interaction
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -183,5 +184,6 @@
 
     init();
 </script>
+
 </body>
 </html>
