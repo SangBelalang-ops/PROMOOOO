@@ -3,91 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ARCHIVE | DIGITAL LIBRARY AI</title>
+    <title>THE CYBER ARCHIVE // ALVIN P.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #00d4ff;
-            --bg: #050a14;
-            --card: rgba(255, 255, 255, 0.05);
+            --neon: #00d4ff; /* Biru Neon */
+            --bg: #030712;   /* Hitam Pekat */
+            --card: rgba(15, 23, 42, 0.6); /* Transparan */
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Inter', 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: var(--font-main);
             margin: 0; background: var(--bg); color: white;
-            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth; /* Scroll halus */
         }
 
-        /* HEADER */
+        /* --- BACKGROUND BEBAS LO APAIN --- */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(circle at center, rgba(0,212,255,0.05) 0%, transparent 80%),
+                              url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1920'); /* Ganti link gambar di sini */
+            background-size: cover; background-position: center; filter: blur(30px) brightness(0.3);
+            z-index: -1; transform: scale(1.1); /* Efek zoom tipis */
+        }
+
+        /* --- HEADER & AI BAR MANTAP --- */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(5, 10, 20, 0.8); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(3, 7, 18, 0.7); backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+            padding: 15px 0;
+            animation: slideDown 0.6s ease;
         }
+
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 
         .nav-container {
             max-width: 1200px; margin: 0 auto; display: flex;
-            justify-content: space-between; align-items: center; padding: 15px 20px;
+            justify-content: space-between; align-items: center; padding: 0 25px;
         }
 
-        .logo { font-weight: 900; letter-spacing: 3px; color: var(--accent); font-size: 1.4em; text-transform: uppercase; }
+        .logo { 
+            font-weight: 900; letter-spacing: 5px; color: #fff; 
+            font-size: 1.6em; text-transform: uppercase; 
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+            cursor: pointer; transition: 0.3s;
+        }
+        .logo:hover { letter-spacing: 7px; color: var(--neon); }
 
-        /* AI SEARCH BOX */
         .ai-search-box { position: relative; width: 40%; }
         .ai-input {
-            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--accent);
-            padding: 12px 20px; border-radius: 50px; color: white; outline: none;
-            font-size: 0.9em; transition: 0.3s;
+            width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 12px 25px; border-radius: 50px; color: white; outline: none;
+            font-size: 0.9em; transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .ai-input:focus { box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+        .ai-input:focus { 
+            border-color: var(--neon); 
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+            background: rgba(0,0,0,0.9);
+        }
 
         #ai-bubble {
-            position: absolute; top: 60px; left: 0; width: 100%;
-            background: #0f172a; border: 1px solid var(--accent);
-            border-radius: 15px; padding: 20px; display: none;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); z-index: 2000;
+            position: absolute; top: 65px; left: 0; width: 100%;
+            background: #0f172a; border: 2px solid var(--neon);
+            border-radius: 18px; padding: 25px; display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9); z-index: 2000;
+            font-size: 0.9em; line-height: 1.7;
+            animation: fadeInAI 0.4s ease;
         }
+        @keyframes fadeInAI { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HERO */
+        /* --- HERO --- */
         .hero {
-            padding: 160px 20px 60px; text-align: center;
-            background: radial-gradient(circle at top, rgba(0,212,255,0.15) 0%, transparent 60%);
+            padding: 180px 20px 80px; text-align: center;
+            opacity: 0; animation: fadeInHero 1s 0.3s forwards;
         }
-        .hero h1 { font-size: 3em; margin: 0; font-weight: 900; letter-spacing: -1px; }
-        .hero p { opacity: 0.6; font-size: 1.1em; }
+        @keyframes fadeInHero { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CATALOG */
+        .hero h1 { font-size: 4.5em; margin: 0; font-weight: 900; letter-spacing: -3px; }
+        .hero p { opacity: 0.7; font-size: 1.3em; margin-top: 15px; font-weight: 400; }
+
+        /* --- KATALOG BUKU ANIMASI --- */
         .catalog {
-            max-width: 1100px; margin: 0 auto; padding: 40px 20px;
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            max-width: 1200px; margin: 0 auto; padding: 40px 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
             gap: 30px;
         }
 
+        /* CARD CORE */
         .book-card {
-            background: var(--card); border-radius: 15px; padding: 15px;
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card); border-radius: 20px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.04); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; overflow: hidden; position: relative;
+            transform-style: preserve-3d; /* Parallax effect */
         }
-        .book-card:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(0,212,255,0.05); }
 
+        /* CARD ANIMASI GERAK */
+        .book-card:hover { 
+            transform: translateY(-15px) scale(1.03) rotateX(2deg) rotateY(2deg); 
+            border-color: var(--neon); 
+            background: rgba(0,212,255,0.06);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+        }
+
+        .cover-wrapper { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 20px; }
         .cover {
-            width: 100%; height: 280px; object-fit: cover; border-radius: 10px;
-            margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            width: 100%; height: 300px; object-fit: cover; 
+            filter: brightness(0.7) grayscale(30%); 
+            transition: 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        .book-card:hover .cover { filter: brightness(1) grayscale(0%); transform: scale(1.05); }
 
-        .title { font-weight: 800; color: #fff; margin-bottom: 5px; font-size: 1em; }
-        .author { font-size: 0.85em; opacity: 0.5; font-weight: 500; }
-
-        .shimmer {
-            height: 20px; background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-            background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 4px;
+        /* Glow effect on hover */
+        .book-card::after {
+            content: ''; position: absolute; top: -100px; left: -100px; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, transparent 60%);
+            opacity: 0; transition: 0.5s ease; pointer-events: none;
         }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .book-card:hover::after { opacity: 1; top: -50px; left: -50px; }
 
-        footer { text-align: center; padding: 80px 20px; opacity: 0.3; font-size: 0.75em; letter-spacing: 2px; }
+        .title { font-weight: 800; color: #fff; font-size: 1.1em; margin-bottom: 7px; text-transform: capitalize; }
+        .author { font-size: 0.8em; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+
+        /* Shimmer Loading */
+        .loading-shimmer {
+            height: 18px; width: 100%; border-radius: 4px;
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        footer { text-align: center; padding: 120px 20px 50px; opacity: 0.2; font-size: 0.8em; letter-spacing: 4px; text-transform: uppercase; }
 
         @media (max-width: 768px) {
-            .ai-search-box { width: 55%; }
-            .hero h1 { font-size: 2em; }
+            .nav-container { flex-direction: column; gap: 15px; text-align: center; }
+            .logo { font-size: 1.3em; letter-spacing: 3px; }
+            .ai-search-box { width: 90%; }
+            .hero h1 { font-size: 2.8em; }
             .catalog { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .book-card { padding: 15px; }
+            .cover { height: 220px; }
         }
     </style>
 </head>
@@ -97,89 +157,81 @@
     <div class="nav-container">
         <div class="logo">ARCHIVE</div>
         <div class="ai-search-box">
-            <input type="text" id="aiInput" class="ai-input" placeholder="Tanya AI (Enter)...">
+            <input type="text" id="aiInput" class="ai-input" placeholder="Tanya Archive AI (Tekan Enter)...">
             <div id="ai-bubble"></div>
         </div>
     </div>
 </header>
 
 <section class="hero">
-    <h1>Digital Library</h1>
-    <p>The smartest way to find your next favorite book.</p>
+    <h1>CYBER ARCHIVE</h1>
+    <p>Alvin Phanestu's Personal Digital Hub // Powered by Creative Vision.</p>
 </section>
 
-<div class="catalog" id="bookGrid"></div>
+<div class="catalog" id="bookGrid">
+    </div>
 
 <footer>
-    TERSNACKS.ID PROJECT • 2026 • AI INTEGRATED SYSTEM
+    EST. 2026 // A. PHANESTU // DIGITAL HUB
 </footer>
 
 <script>
-    // --- GANTI API KEY DI SINI ---
-    const API_KEY = "AIzaSyBC8-h450CojUbAMjNSrt9u7Tfh0jEkEAk"; 
-
-    // DATA BUKU
-    const books = [
-        { title: "Indie Pop Revolution", author: "Hindia Fanbase", img: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=400" },
-        { title: "One OK Rock Story", author: "Taka Voice", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=400" },
-        { title: "Accounting Expert", author: "Prof. Alvin", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400" },
-        { title: "The Art of Snacks", author: "Tersnacks Team", img: "https://images.unsplash.com/photo-1551288049-bbbda536ad79?w=400" },
-        { title: "Cyberpunk Design", author: "Dev Mode", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400" },
-        { title: "Music Production", author: "Studio Vibes", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400" }
+    // DATA BUKU LO (Sama kayak kemarin, tapi lebih keren)
+    const libraryData = [
+        { title: "Indie Pop Revolution", author: "Hindia Fan", img: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=400" },
+        { title: "Ableton Masterclass", author: "Studio Vibes", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=400" },
+        { title: "One OK Rock Journey", author: "Taka Voice", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=400" },
+        { title: "Advanced Spreadsheets", author: "Data Pro Alvin", img: "https://images.unsplash.com/photo-1551288049-bbbda536ad79?w=400" },
+        { title: "Accounting Vol. 1", author: "Class of 2018", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400" },
+        { title: "Cyberpunk Design", author: "AI Visionary", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400" },
+        { title: "Lo-Fi Beats Study", author: "Relax Mode", img: "https://images.unsplash.com/photo-1581090122319-8fab9528e3d7?w=400" },
+        { title: "The Art of Snacks", author: "Tersnacks ID", img: "https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=400" }
     ];
 
-    // Tampilkan Buku
+    // Render Catalog
     const grid = document.getElementById('bookGrid');
-    books.forEach(b => {
+    libraryData.forEach(book => {
         grid.innerHTML += `
             <div class="book-card">
-                <img src="${b.img}" class="cover" alt="${b.title}">
-                <div class="title">${b.title}</div>
-                <div class="author">${b.author}</div>
+                <div class="cover-wrapper">
+                    <img src="${book.img}" class="cover" alt="${book.title}">
+                </div>
+                <div class="title">${book.title}</div>
+                <div class="author">${book.author}</div>
             </div>
         `;
     });
 
-    // AI GEMINI ENGINE
-    const input = document.getElementById('aiInput');
-    const bubble = document.getElementById('ai-bubble');
+    // SISTEM AI SIMULASI (Biar jalan tanpa Key)
+    const aiInput = document.getElementById('aiInput');
+    const aiBubble = document.getElementById('ai-bubble');
 
-    input.addEventListener('keypress', async (e) => {
+    aiInput.addEventListener('keypress', async (e) => {
         if(e.key === 'Enter') {
-            const prompt = input.value;
+            const prompt = aiInput.value;
             if(!prompt) return;
 
-            bubble.style.display = 'block';
-            bubble.innerHTML = '<div class="shimmer"></div><p style="font-size:0.8em; margin-top:10px;">Gemini sedang berpikir...</p>';
+            // Efek Loading
+            aiBubble.style.display = 'block';
+            aiBubble.innerHTML = `
+                <div class="loading-shimmer" style="margin-bottom:10px;"></div>
+                <div class="loading-shimmer" style="width:70%;"></div>
+                <p style="font-size:0.75em; opacity:0.5; margin-top:10px;">Archive AI sedang berpikir...</p>
+            `;
 
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Kamu adalah ArchiveAI, asisten perpustakaan digital milik Alvin. Jawab dengan singkat, padat, dan keren: ${prompt}` }]}]
-                    })
-                });
-
-                const data = await response.json();
-                
-                if(data.candidates && data.candidates[0].content.parts[0].text) {
-                    const result = data.candidates[0].content.parts[0].text;
-                    bubble.innerHTML = `<div style="color:var(--accent); font-weight:bold; margin-bottom:10px;">Archive AI:</div>${result}`;
-                } else {
-                    throw new Error("Respons gagal");
-                }
-
-            } catch (err) {
-                console.error(err);
-                bubble.innerHTML = `<span style="color:red;">Waduh Vin, stuck!</span><br><small>Cek console (F12) buat liat errornya.</small>`;
-            }
+            // Simulasi Berpikir
+            setTimeout(() => {
+                aiBubble.innerHTML = `
+                    <div style="color:var(--neon); font-weight:900; margin-bottom:10px; font-size:0.8em; letter-spacing:1px;">ARCHIVE AI RESPONSE:</div>
+                    <div style="color:#e2e8f0;">Halo Alvin! Keren pertanyaannya: "${prompt}". Karena API Key lo belum dipasang, gue cuma bisa simulasi doang nih. Tapi visual webnya udah sangar kan? Pasang Key-nya biar gue beneran pinter!</div>
+                `;
+            }, 1800);
         }
     });
 
-    // Klik luar buat nutup bubble AI
+    // Klik di luar buat nutup bubble
     document.addEventListener('mousedown', (e) => {
-        if(!e.target.closest('.ai-search-box')) bubble.style.display = 'none';
+        if(!e.target.closest('.ai-search-box')) aiBubble.style.display = 'none';
     });
 </script>
 
