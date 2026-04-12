@@ -3,129 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE SNACK BOOK - TERSNACKS.ID</title>
+    <title>THE ARCHIVE - TERSNACKS BOOKS</title>
     <style>
+        :root {
+            --accent: #00d4ff;
+            --bg: #0a1929;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
         body {
-            background-color: #050505;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            perspective: 1500px; /* Efek 3D Kedalaman */
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0; background: var(--bg); color: white;
+            padding-bottom: 50px;
         }
 
-        .book {
-            width: 350px;
-            height: 500px;
-            position: relative;
-            transition: transform 0.5s;
-            transform-style: preserve-3d;
-        }
-
-        .page {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: #111;
-            border: 1px solid #00d4ff;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
-            transform-origin: left;
-            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-            transform-style: preserve-3d;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-            border-radius: 0 15px 15px 0;
-        }
-
-        /* Halaman Depan / Cover */
-        .page.front {
-            z-index: 2;
-            background: linear-gradient(45deg, #0a1929, #000);
-            border-left: 5px solid #00d4ff;
-        }
-
-        /* Konten dalam buku */
-        .content {
+        /* Hero Section */
+        header {
+            padding: 60px 20px;
+            background: linear-gradient(to bottom, rgba(0,212,255,0.1), transparent);
             text-align: center;
-            backface-visibility: hidden;
+        }
+        header h1 { font-size: 2.5em; font-weight: 900; letter-spacing: -1px; margin: 0; }
+        header p { opacity: 0.6; font-size: 0.9em; margin-top: 10px; }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px; margin: -30px auto 40px; padding: 0 20px;
+        }
+        .search-bar {
+            width: 100%; padding: 18px 25px; border-radius: 50px;
+            border: 1px solid rgba(0,212,255,0.3); background: rgba(10, 25, 41, 0.8);
+            color: white; font-size: 1em; backdrop-filter: blur(10px);
+            outline: none; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .search-bar:focus { border-color: var(--accent); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+
+        /* Books Grid */
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 25px; padding: 20px; max-width: 1100px; margin: 0 auto;
         }
 
-        .snack-img {
-            width: 80%;
-            border-radius: 10px;
-            border: 2px solid #00d4ff;
-            margin-bottom: 15px;
+        .book-card {
+            background: var(--card-bg); border-radius: 12px; padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s ease;
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        .book-card:hover {
+            transform: translateY(-10px); border-color: var(--accent);
+            background: rgba(255,255,255,0.08);
         }
 
-        /* Efek Membalik Halaman */
-        .page.flipped {
-            transform: rotateY(-160deg);
-            z-index: 1;
+        .book-cover {
+            width: 100%; height: 240px; border-radius: 8px;
+            object-fit: cover; margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .instruction {
-            position: fixed;
-            bottom: 20px;
-            color: #00d4ff;
-            font-size: 0.8em;
-            letter-spacing: 2px;
-            animation: pulse 2s infinite;
+        .book-title { font-size: 0.95em; font-weight: 700; margin-bottom: 5px; color: var(--accent); }
+        .book-author { font-size: 0.8em; opacity: 0.6; }
+
+        /* Tag Genre */
+        .genre-tag {
+            font-size: 0.65em; background: rgba(0,212,255,0.1);
+            color: var(--accent); padding: 3px 8px; border-radius: 4px;
+            display: inline-block; margin-top: 10px; font-weight: 700;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
+        footer { text-align: center; margin-top: 100px; opacity: 0.4; font-size: 0.8em; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            header h1 { font-size: 1.8em; }
         }
     </style>
 </head>
 <body>
 
-<div class="book" id="snackBook">
-    <div class="page" id="p3">
-        <div class="content">
-            <h2 style="color: #00d4ff;">MENU BARU</h2>
-            <img src="https://i.postimg.cc/gjYGV4z5/601de701-a9b5-4bbf-8aa6-87b171349a64.jpg" class="snack-img">
-            <p style="font-weight: 900;">BASRENG PEDAS</p>
-            <button style="background:#00d4ff; border:none; padding:10px 20px; border-radius:10px; font-weight:900;">ORDER NOW</button>
-        </div>
-    </div>
+<header>
+    <h1>THE ARCHIVE</h1>
+    <p>DIGITAL BOOK CATALOG BY TERSNACKS</p>
+</header>
 
-    <div class="page" id="p2" onclick="flipPage('p2')">
-        <div class="content">
-            <h2 style="color: #00d4ff;">BEST SELLER</h2>
-            <img src="https://i.postimg.cc/MZbTnf6L/184f7bee-21ba-4477-81c6-c9f7acfb487a.jpg" class="snack-img">
-            <p style="font-weight: 900;">KACANG TOJIN</p>
-            <p style="font-size: 0.8em;">Garing, Gurih, Premium.</p>
-        </div>
-    </div>
-
-    <div class="page front" id="p1" onclick="flipPage('p1')">
-        <div class="content">
-            <img src="https://i.postimg.cc/T3Dj51gC/download.png" style="width: 150px; filter: drop-shadow(0 0 10px #00d4ff);">
-            <h1 style="letter-spacing: 5px; margin-top: 20px;">THE SNACK BOOK</h1>
-            <p style="color: #00d4ff; font-weight: 900;">PREMIUM QUALITY</p>
-        </div>
-    </div>
+<div class="search-container">
+    <input type="text" id="searchInput" class="search-bar" placeholder="Cari judul buku atau penulis..." onkeyup="filterBooks()">
 </div>
 
-<div class="instruction">TAP TO OPEN THE BOOK</div>
+<div class="grid" id="bookGrid">
+    </div>
+
+<footer>
+    © 2026 TERSNACKS DIGITAL LIBRARY • STYLED FOR ALVIN PHANESTU
+</footer>
 
 <script>
-    function flipPage(pageId) {
-        const page = document.getElementById(pageId);
-        page.classList.toggle('flipped');
+    // DATA BUKU LO (Bisa lo tambah sesuka hati)
+    const books = [
+        { title: "Indie Pop Revolution", author: "Hindia fan", genre: "Music", cover: "https://images.unsplash.com/photo-1514525253361-bee8718a300a?w=400" },
+        { title: "Accounting 101", author: "Class of 2018", genre: "Education", cover: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400" },
+        { title: "One OK Rock Journey", author: "Taka Voice", genre: "Biography", cover: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?w=400" },
+        { title: "Advanced Spreadsheets", author: "Script Master", genre: "Tech", cover: "https://images.unsplash.com/photo-1551288049-bbbda536ad79?w=400" },
+        { title: "Alternative Rock Vibes", author: "Producer Soul", genre: "Music", cover: "https://images.unsplash.com/photo-1459749411177-042180ce673c?w=400" },
+        { title: "The Art of Resignation", author: "Quarter Life", genre: "Self-Help", cover: "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?w=400" }
+    ];
+
+    function renderBooks(data) {
+        const grid = document.getElementById('bookGrid');
+        grid.innerHTML = '';
+        data.forEach(book => {
+            grid.innerHTML += `
+                <div class="book-card">
+                    <img src="${book.cover}" class="book-cover" alt="${book.title}">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">${book.author}</div>
+                    <div class="genre-tag">${book.genre}</div>
+                </div>
+            `;
+        });
     }
+
+    function filterBooks() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = books.filter(book => 
+            book.title.toLowerCase().includes(query) || 
+            book.author.toLowerCase().includes(query)
+        );
+        renderBooks(filtered);
+    }
+
+    // Load buku pertama kali
+    renderBooks(books);
 </script>
 
 </body>
